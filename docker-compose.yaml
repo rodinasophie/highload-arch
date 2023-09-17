@@ -22,7 +22,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: highload-arch-backend
-    command: bash -c './bin/social-network'
+    command: bash -c 'while true; do sleep 1; done'
     ports:
       - "8082:8082"
     networks:

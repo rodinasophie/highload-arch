@@ -3,11 +3,12 @@ package endpoints
 import (
 	"context"
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"highload-arch/pkg/storage"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 type UserRegisterBody struct {
@@ -76,13 +77,12 @@ func UserRegisterPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	birthdate, err := time.Parse(time.DateOnly, rb.Birthdate)
-	log.Println(birthdate)
 	if err != nil {
 		log.Println(err)
 		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
-	id, err := storage.AddUser(context.Background(), &storage.User{"", rb.FirstName, rb.SecondName, birthdate, rb.Biography, rb.City}, rb.Password)
+	id, err := storage.AddUser(context.Background(), &storage.User{ID: "", FirstName: rb.FirstName, SecondName: rb.SecondName, Birthdate: birthdate, Biography: rb.Biography, City: rb.City}, rb.Password)
 	if err != nil {
 		log.Println(err)
 		GenerateError(w, http.StatusInternalServerError, requestID, "10m")

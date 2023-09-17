@@ -5,7 +5,8 @@ The repository contains the code to represent the social network.
 
 1. Download the project with `git clone`
 2. `cd highload-arch/ && make docker-init`
-3. Run the requests from Postman collection
+3. `make docker-run`
+4. Run the requests from Postman collection
 
 ## Details
 1. Backend is listening on `localhost:8082`

@@ -1,8 +1,6 @@
 \c social_net;
 SET ROLE TO admin_user;
 
-CREATE EXTENSION pgcrypto;
-
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,

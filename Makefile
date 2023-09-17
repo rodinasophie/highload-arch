@@ -5,6 +5,9 @@ docker-init:
 	docker compose up -d && sleep 2
 	docker exec -it highload-arch-db sh -c "psql -U admin_user -f /etc/highload-arch/schema.sql social_net";
 
+docker-run:
+	docker exec -d highload-arch-backend sh -c "./bin/social-network";
+
 docker-reset:
 	docker compose down
 
