@@ -1,0 +1,43 @@
+version: "3"
+services:
+  db:
+    image: postgres:14
+    container_name: highload-arch-db
+    environment:
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=social_net
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - "./db/schema.sql:/etc/highload-arch/schema.sql"
+    ports:
+      - 5432:5432
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.91
+
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: highload-arch-backend
+    command: bash -c './bin/social-network'
+    ports:
+      - "8082:8082"
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.92
+
+networks:
+  ctl_net:
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.1
+
+volumes:
+  db-data:

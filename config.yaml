@@ -1,0 +1,5 @@
+server:
+  port: ":8082"
+
+db:
+  connstr: "host=172.16.238.91 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable"
