@@ -11,12 +11,12 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS user_credentials (
-    id UUID PRIMARY KEY REFERENCES users,
+    id UUID PRIMARY KEY,
     password TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_tokens(
-    id UUID PRIMARY KEY REFERENCES users,
+    id UUID PRIMARY KEY,
     token TEXT NOT NULL,
     valid_until TIMESTAMP NOT NULL
 );
