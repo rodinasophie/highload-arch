@@ -1,0 +1,566 @@
+{
+	"info": {
+		"_postman_id": "9c33a264-2f47-4e5f-82f0-74f2afd7faa4",
+		"name": "SocialNetwork Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29462655"
+	},
+	"item": [
+		{
+			"name": "Register user",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-ID",
+						"value": "fdkljfd",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2017-02-01\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\",\n  \"password\": \"Секретная строка\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/user/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"user",
+						"register"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Register user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-ID",
+								"value": "fdkljfd",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2017-02-01\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\",\n  \"password\": \"Секретная строка\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8082/user/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Get user by id",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "683bf93d736cb73d08ceedb1e950ab",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/user/get/:id/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"user",
+						"get",
+						":id",
+						""
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "c71e5bd0-0f97-4e5f-8983-85e08e149e23"
+						}
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get user by id",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8082/user/get/:id/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"user",
+								"get",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "b0070ee5-d2cc-4cac-91bc-3fcd7a59c2ba"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "Get user by id",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8082/user/get/:id/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"user",
+								"get",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "c71e5bd0-0f97-4e5f-8983-85e08e149e25"
+								}
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "Login user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "0857bd1405112f45b63a7cfd9957c7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-ID",
+						"value": "fdkj",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"c71e5bd0-0f97-4e5f-8983-85e08e149e23\",\n  \"password\": \"Секретная строка\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Login user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-ID",
+								"value": "fdkj",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"b0070ee5-d2cc-4cac-91bc-3fcd7a59c2ba\",\n  \"password\": \"Секретная строка\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8082/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "Login user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-ID",
+								"value": "fdkj",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"c71e5bd0-0f97-4e5f-8983-85e08e149e23\",\n  \"password\": \"Секретная неверная строка\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8082/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				},
+				{
+					"name": "Login user",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-ID",
+								"value": "fdkj",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"c71e5bd0-0f97-4e5f-8983-85e08e149e23\",\n  \"password\": \"Секретная строка\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8082/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8082",
+							"path": [
+								"login"
+							]
+						}
+					},
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		},
+		{
+			"name": "http://localhost:8082/user/register",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-ID",
+						"value": "fdkljfd",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"first_name\": \"Имя\",\n  \"second_name\": \"Фамилия\",\n  \"birthdate\": \"2017-02-01\",\n  \"biography\": \"Хобби, интересы и т.п.\",\n  \"city\": \"Москва\",\n  \"password\": \"Секретная строка\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/user/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"user",
+						"register"
+					]
+				},
+				"description": "Register user basic"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8082/login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "0857bd1405112f45b63a7cfd9957c7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-ID",
+						"value": "fdkj",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"b0070ee5-d2cc-4cac-91bc-3fcd7a59c2ba\",\n  \"password\": \"Секретная строка\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"login"
+					]
+				},
+				"description": "Login basic successful"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8082/user/get/:id/",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "683bf93d736cb73d08ceedb1e950ab",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/user/get/:id/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"user",
+						"get",
+						":id",
+						""
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "b0070ee5-d2cc-4cac-91bc-3fcd7a59c2ba"
+						}
+					]
+				},
+				"description": "Get user successful"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8082/login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "0857bd1405112f45b63a7cfd9957c7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-ID",
+						"value": "fdkj",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"c71e5bd0-0f97-4e5f-8983-85e08e149e23\",\n  \"password\": \"Секретная неверная строка\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"login"
+					]
+				},
+				"description": "Login fails with wrong password"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8082/login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "0857bd1405112f45b63a7cfd9957c7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-ID",
+						"value": "fdkj",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"c71e5bd0-0f97-4e5f-8983-85e08e149e24\",\n  \"password\": \"Секретная строка\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8082/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"login"
+					]
+				},
+				"description": "Login fails with wrong user_id"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8082/user/get/:id/",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "683bf93d736cb73d08ceedb1e950ab",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8082/user/get/:id/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"user",
+						"get",
+						":id",
+						""
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "c71e5bd0-0f97-4e5f-8983-85e08e149e25"
+						}
+					]
+				},
+				"description": "Get user fails with wrong user_id"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
