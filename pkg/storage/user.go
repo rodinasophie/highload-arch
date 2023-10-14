@@ -2,11 +2,13 @@ package storage
 
 import (
 	"context"
+	"fmt"
+
+	"time"
 
 	"github.com/georgysavva/scany/pgxscan"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
-	"time"
 )
 
 type User struct {
@@ -58,7 +60,7 @@ func (u *User) dbAddUserCredentials(ctx context.Context, tx pgx.Tx, password str
 
 func GetUser(ctx context.Context, id string) (*User, error) {
 	user, err := HandleInTransaction(ctx, func(ctx context.Context, tx pgx.Tx) (interface{}, error) {
-		user, err := dbGetUser(ctx, tx, id)
+		user, err := dbGetUserById(ctx, tx, id)
 		if err != nil {
 			return nil, err
 		}
@@ -70,7 +72,33 @@ func GetUser(ctx context.Context, id string) (*User, error) {
 	return user.(*User), nil
 }
 
-func dbGetUser(ctx context.Context, tx pgx.Tx, userID string) (*User, error) {
+func SearchUsers(ctx context.Context, firstName string, secondName string) ([]User, error) {
+	regex := make(map[string]string)
+	regex[DbUsersFirstName] = firstName
+	regex[DbUsersSecondName] = secondName
+	/*users, err := HandleInTransaction(ctx, func(ctx context.Context, tx pgx.Tx) (interface{}, error) {
+		users, err := dbGetUsersByRegex(ctx, tx, regex)
+		if err != nil {
+			return nil, err
+		}
+		return users, nil
+	})*/
+	users, err := dbGetUsersByRegex(ctx, regex)
+	if err != nil {
+		return nil, err
+	}
+	/*var usersOut []*User
+
+	rv := reflect.ValueOf(users)
+	if rv.Kind() == reflect.Slice {
+		for i := 0; i < rv.Len(); i++ {
+			usersOut = append(usersOut, rv.Index(i).Interface().(*User))
+		}
+	}*/
+	return users, nil
+}
+
+func dbGetUserById(ctx context.Context, tx pgx.Tx, userID string) (*User, error) {
 	res := []*User{}
 	err := pgxscan.Select(context.Background(), db, &res, `SELECT * FROM users WHERE id = $1`, userID)
 	if err != nil {
@@ -80,4 +108,40 @@ func dbGetUser(ctx context.Context, tx pgx.Tx, userID string) (*User, error) {
 		return nil, ErrUserNotFound
 	}
 	return res[0], nil
+}
+
+func dbGetUsersByRegex(ctx context.Context /*tx pgx.Tx,*/, regexMap map[string]string) ([]User, error) {
+	res := []User{}
+	regexFilter := ``
+	for key, value := range regexMap {
+		val := string('\'') + string(value) + string('%') + string('\'')
+		newFilter := fmt.Sprintf(`%s LIKE %s`, key, val)
+		if regexFilter != `` {
+			regexFilter += ` and ` + newFilter
+		} else {
+			regexFilter = newFilter
+		}
+	}
+	//start := time.Now()
+	regexFilter = `SELECT * FROM users WHERE ` + regexFilter + ` ORDER BY id`
+	rows, err := db.Query(context.Background(), regexFilter)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	//elapsed := time.Since(start)
+	//fmt.Printf("Execution SELECT: %v\n", elapsed)
+	//start = time.Now()
+	if err := pgxscan.ScanAll(&res, rows); err != nil {
+		return nil, err
+	}
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, ErrUserNotFound
+	}
+	//elapsed = time.Since(start)
+	//fmt.Printf("Execution of scan: %v\n", elapsed)
+	return res, nil
 }

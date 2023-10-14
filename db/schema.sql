@@ -2,7 +2,7 @@
 SET ROLE TO admin_user;
 
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(50) NOT NULL,
     second_name VARCHAR(50) NOT NULL,
     birthdate DATE NOT NULL,
@@ -20,3 +20,5 @@ CREATE TABLE IF NOT EXISTS user_tokens(
     token TEXT NOT NULL,
     valid_until TIMESTAMP NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS users_idx ON TABLE users(first_name, second_name);

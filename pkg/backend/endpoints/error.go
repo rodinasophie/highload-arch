@@ -2,8 +2,10 @@ package endpoints
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
+	"github.com/pkg/errors"
 )
 
 type ErrorResp struct {
@@ -25,4 +27,12 @@ func GenerateError(w http.ResponseWriter, errorStatus int, requestID string, ret
 	resp := NewErrorResp(requestID, errorStatus, http.StatusText(errorStatus))
 	w.WriteHeader(errorStatus)
 	json.NewEncoder(w).Encode(resp)
+}
+
+func GenerateErrorEcho(c echo.Context, errorStatus int, requestID string, retryAfterTimeout string) error {
+	if retryAfterTimeout != "" {
+		c.Request().Header.Set("Retry-After", retryAfterTimeout)
+	}
+	resp := NewErrorResp(requestID, errorStatus, http.StatusText(errorStatus))
+	return c.JSON(errorStatus, resp)
 }

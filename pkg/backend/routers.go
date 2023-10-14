@@ -36,7 +36,7 @@ func NewRouter() *mux.Router {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World!")
+	fmt.Fprintf(w, "Welcome to highload architecture homework!")
 }
 
 var routes = Routes{
@@ -67,4 +67,19 @@ var routes = Routes{
 		"/user/register",
 		endpoints.UserRegisterPost,
 	},
+
+	Route{
+		"UserSearchGet",
+		strings.ToUpper("Get"),
+		"/user/search",
+		endpoints.UserSearchGet,
+	},
 }
+
+/*func AddRoutes(e *echo.Echo) {
+	//e.GET("/", Index)
+	//e.POST("/login", endpoints.LoginPost)
+	//	e.GET("/user/get/{id}", endpoints.UserGetIdGet)
+	//	e.POST("/user/register", endpoints.UserRegisterPost)
+	e.GET("/user/search", endpoints.UserSearchGet)
+}*/

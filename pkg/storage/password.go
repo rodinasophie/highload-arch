@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+
 	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4"
 	"golang.org/x/crypto/bcrypt"
