@@ -1,21 +1,67 @@
 version: "3"
 services:
-  db:
+  db-leader:
     image: postgres:14
-    container_name: highload-arch-db
+    container_name: ha-db-leader
     environment:
       - POSTGRES_USER=admin_user
       - POSTGRES_PASSWORD=1111
       - POSTGRES_DB=social_net
+      - PGPASSFILE=/root/.pgpass
+      - PGDATA=${PGDATA_LOCAL}
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - "./db-data-leader/pg_setup.sh:/etc/pg_setup.sh"
+      - "./db-data-leader/people.csv:/people.csv"
+      - "./db-data-leader/pgslave:/pgslave"
+      - "./db-data-leader/pgpass:/root/.pgpass"
       - "./db/schema.sql:/etc/highload-arch/schema.sql"
+      - "./db-data-leader/postgresql.conf:/etc/my_postgresql.conf"
+      - "./db-data-leader/pg_hba.conf:/etc/my_pg_hba.conf"
+
     ports:
-      - 5432:5432
+      - 5435:5432
     restart: always
     networks:
       ctl_net:
         ipv4_address: 172.16.238.91
+
+  db-replica-1:
+    image: postgres:14
+    container_name: ha-db-replica-1
+    environment:
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=social_net
+      - PGDATA=${PGDATA_LOCAL}
+    volumes:
+      - ./db-data-leader/pgslave:${PGDATA_LOCAL}
+      - "./db-data-replica/postgresql.conf:${PGDATA_LOCAL}/postgresql.conf"
+      - ./db-data-replica/standby.signal:${PGDATA_LOCAL}/standby.signal
+    ports:
+      - 5433:5432
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.92
+
+  db-replica-2:
+      image: postgres:14
+      container_name: ha-db-replica-2
+      environment:
+        - POSTGRES_USER=admin_user
+        - POSTGRES_PASSWORD=1111
+        - POSTGRES_DB=social_net
+        - PGDATA=${PGDATA_LOCAL}
+      volumes:
+      - ./db-data-leader/pgslave:${PGDATA_LOCAL}
+      - "./db-data-replica/postgresql.conf:${PGDATA_LOCAL}/postgresql.conf"
+      - ./db-data-replica/standby.signal:${PGDATA_LOCAL}/standby.signal
+      ports:
+        - 5434:5432
+      restart: always
+      networks:
+        ctl_net:
+          ipv4_address: 172.16.238.93
 
   backend:
     build:
@@ -27,7 +73,7 @@ services:
       - "8082:8082"
     networks:
       ctl_net:
-        ipv4_address: 172.16.238.92
+        ipv4_address: 172.16.238.94
 
 networks:
   ctl_net:
@@ -40,4 +86,6 @@ networks:
           gateway: 172.16.238.1
 
 volumes:
-  db-data:
+  db-data-leader:
+  db-data-replica:
+  db-data-2:

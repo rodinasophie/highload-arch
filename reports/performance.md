@@ -184,24 +184,24 @@ social_net=# EXPLAIN ANALYZE SELECT * FROM users WHERE first_name LIKE 'Ул%' A
 ###### Пользователей: 1
 No Index             |  Index Enabled
 :-------------------------:|:-------------------------:
-!["no index 1 user"](images/1user_no_index.png ) | !["index enabled, 1 user"](images/1user.png)
+!["no index 1 user"](images/performance/1user_no_index.png ) | !["index enabled, 1 user"](images/performance/1user.png)
 
 
 ###### Пользователей: 10
 No Index             |  Index Enabled
 :-------------------------:|:-------------------------:
-!["no index 10 user"](images/10users_no_index.png ) | !["index enabled, 10 user"](images/10users.png)
+!["no index 10 user"](images/performance/10users_no_index.png ) | !["index enabled, 10 user"](images/performance/10users.png)
 
 
 ###### Пользователей: 100
 No Index             |  Index Enabled
 :-------------------------:|:-------------------------:
-!["no index 100 user"](images/100users_no_index.png ) | !["index enabled, 100 user"](images/100users.png)
+!["no index 100 user"](images/performance/100users_no_index.png ) | !["index enabled, 100 user"](images/performance/100users.png)
 
 ###### Пользователей: 1000
 No Index             |  Index Enabled
 :-------------------------:|:-------------------------:
-!["no index 1000 user"](images/1000users_no_index.png ) | !["index enabled, 1000 user"](images/1000users.png)
+!["no index 1000 user"](images/performance/1000users_no_index.png ) | !["index enabled, 1000 user"](images/performance/1000users.png)
 
 Была получена следующая сводная таблица результатов:
 
@@ -218,5 +218,5 @@ No Index             |  Index Enabled
 ## Выводы
 
 В рамках проведенного исследования был обнаружен ощутимый рост производительности запроса `GET /user/search` при использовании составного индекса по полям `first_name` и `second_name`. Метрики `latency` и `RPS`, связанные с эффективностью поиска это подтверждают. В рамках реального времени также легко увидеть значительное изменение показателей системы при создании индекса на следующем графике(для 100 пользователей):
-!["100users comparison"](images/100users_comparison.png)
+!["100users comparison"](images/performance/100users_comparison.png)
 Момент смены тренда на графиках - это момент создания индекса в базе данных.

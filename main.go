@@ -9,21 +9,11 @@ import (
 )
 
 func main() {
-	config.Load("local-config.yaml")
+	config.Load("config.yaml")
 	storage.CreateConnectionPool()
+	storage.CreateReplicaConnectionPool()
 
 	log.Printf("Server started")
 	router := backend.NewRouter()
 	log.Fatal(http.ListenAndServe(config.GetString("server.port"), router))
-
-	//server := echo.New()
-	//server.HideBanner = true
-
-	// Routes
-	//backend.AddRoutes(server)
-
-	// Start REST server
-	//err := server.Start(config.GetString("server.port"))
-	//server.Logger.Fatal(err)
-
 }

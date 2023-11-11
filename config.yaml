@@ -1,5 +1,6 @@
 server:
-  port: ":8082"
+  port: ":8083"
 
 db:
-  connstr: "host=172.16.238.91 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable"
+  master: "host=localhost port=5435 user=admin_user password=1111 dbname=social_net sslmode=disable"
+  replica: "host=localhost port=5433 user=admin_user password=1111 dbname=social_net sslmode=disable "

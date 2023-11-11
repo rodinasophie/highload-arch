@@ -4,10 +4,11 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"github.com/georgysavva/scany/pgxscan"
-	"github.com/jackc/pgx/v4"
 	"log"
 	"time"
+
+	"github.com/georgysavva/scany/pgxscan"
+	"github.com/jackc/pgx/v4"
 )
 
 const (
@@ -63,7 +64,19 @@ func (login *Login) dbAddLoginToken(ctx context.Context, tx pgx.Tx, token string
 	return &LoginToken{login.ID, token, valid_until}, err
 }
 
-func (login *Login) dbReadToken(ctx context.Context, tx pgx.Tx, userID string) (*LoginToken, error) {
+func (login *Login) dbReadToken(ctx context.Context, tx pgx.Tx, token string) (*LoginToken, error) {
+	res := []*LoginToken{}
+	err := pgxscan.Select(context.Background(), db, &res, `SELECT * FROM user_tokens WHERE token = $1`, token)
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, ErrTokenNotFound
+	}
+	return res[0], nil
+}
+
+func (login *Login) dbReadTokenByID(ctx context.Context, tx pgx.Tx, userID string) (*LoginToken, error) {
 	res := []*LoginToken{}
 	err := pgxscan.Select(context.Background(), db, &res, `SELECT * FROM user_tokens WHERE id = $1`, userID)
 	if err != nil {
@@ -85,9 +98,9 @@ func generateSecureToken(length int) string {
 
 func (login *Login) getLoginToken(ctx context.Context) (*LoginToken, error) {
 	loginToken, err := HandleInTransaction(ctx, func(ctx context.Context, tx pgx.Tx) (interface{}, error) {
-		loginToken, err := login.dbReadToken(ctx, tx, login.ID)
+		loginToken, err := login.dbReadTokenByID(ctx, tx, login.ID)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		return loginToken, nil
 	})
@@ -101,14 +114,22 @@ func (login *Login) getLoginToken(ctx context.Context) (*LoginToken, error) {
 	return loginToken.(*LoginToken), nil
 }
 
-func CheckLoginToken(ctx context.Context, token string, userID string) error {
-	newLogin := &Login{userID, ""}
-	loginToken, err := newLogin.getLoginToken(ctx)
+/* Get token and make sure it's not expired */
+func ValidateLoginToken(ctx context.Context, token string) (string, error) {
+	loginToken, err := HandleInTransaction(ctx, func(ctx context.Context, tx pgx.Tx) (interface{}, error) {
+		login := &Login{}
+		loginToken, err := login.dbReadToken(ctx, tx, token)
+		if err != nil {
+			return "", err
+		}
+		return loginToken, nil
+	})
 	if err != nil {
-		return err
+		return "", err
 	}
-	if loginToken.Token != token {
-		return ErrTokenInvalid
+	loginTokenStruct := loginToken.(*LoginToken)
+	if loginTokenStruct.ValidUntil.Before(time.Now()) {
+		return "", ErrTokenExpired
 	}
-	return nil
+	return loginTokenStruct.ID, nil
 }

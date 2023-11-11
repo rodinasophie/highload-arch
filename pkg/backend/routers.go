@@ -74,12 +74,18 @@ var routes = Routes{
 		"/user/search",
 		endpoints.UserSearchGet,
 	},
-}
 
-/*func AddRoutes(e *echo.Echo) {
-	//e.GET("/", Index)
-	//e.POST("/login", endpoints.LoginPost)
-	//	e.GET("/user/get/{id}", endpoints.UserGetIdGet)
-	//	e.POST("/user/register", endpoints.UserRegisterPost)
-	e.GET("/user/search", endpoints.UserSearchGet)
-}*/
+	Route{
+		"FriendAddPut",
+		strings.ToUpper("Put"),
+		"/friend/add/{user_id}",
+		endpoints.FriendAddPut,
+	},
+
+	Route{
+		"FriendDeletePut",
+		strings.ToUpper("Put"),
+		"/friend/delete/{user_id}",
+		endpoints.FriendDeletePut,
+	},
+}

@@ -56,7 +56,8 @@ func UserGetIdGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = CheckAuthorization(context.Background(), r, userID); err != nil {
+	_, err = CheckAuthorization(context.Background(), r)
+	if err != nil {
 		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 		return
 	}
@@ -102,42 +103,6 @@ func UserRegisterPost(w http.ResponseWriter, r *http.Request) {
 	resp := &UserRegisterResponse{UserID: id}
 	json.NewEncoder(w).Encode(resp)
 }
-
-/*func UserSearchGet(c echo.Context) error {
-	requestID, _ := GetRequestIDEcho(c)
-
-	parsedQuery, err := url.ParseQuery(c.QueryString())
-	if err != nil {
-		GenerateErrorEcho(c, http.StatusBadRequest, requestID, "10m")
-		return err
-	}
-	var firstName, secondName string
-	for key, values := range parsedQuery {
-		if key == "first_name" {
-			firstName = values[0]
-		}
-		if key == "second_name" {
-			secondName = values[0]
-		}
-	}
-	users, err := storage.SearchUsers(context.Background(), firstName, secondName)
-	if err != nil {
-		log.Println(err)
-		if err == storage.ErrUserNotFound {
-			GenerateErrorEcho(c, http.StatusNotFound, requestID, "10m")
-		} else {
-			GenerateErrorEcho(c, http.StatusInternalServerError, requestID, "10m")
-		}
-		return err
-	}
-	c.Response().Writer.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	var resp []*UserGetResponseID
-	for _, user := range users {
-		resp = append(resp, &UserGetResponseID{user.ID, user.FirstName, user.SecondName, user.Birthdate.Format(DateFormat), user.Biography, user.City})
-	}
-
-	return c.JSON(http.StatusOK, resp)
-}*/
 
 func UserSearchGet(w http.ResponseWriter, r *http.Request) {
 	requestID, _ := GetRequestID(r)

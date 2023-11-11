@@ -76,31 +76,16 @@ func SearchUsers(ctx context.Context, firstName string, secondName string) ([]Us
 	regex := make(map[string]string)
 	regex[DbUsersFirstName] = firstName
 	regex[DbUsersSecondName] = secondName
-	/*users, err := HandleInTransaction(ctx, func(ctx context.Context, tx pgx.Tx) (interface{}, error) {
-		users, err := dbGetUsersByRegex(ctx, tx, regex)
-		if err != nil {
-			return nil, err
-		}
-		return users, nil
-	})*/
 	users, err := dbGetUsersByRegex(ctx, regex)
 	if err != nil {
 		return nil, err
 	}
-	/*var usersOut []*User
-
-	rv := reflect.ValueOf(users)
-	if rv.Kind() == reflect.Slice {
-		for i := 0; i < rv.Len(); i++ {
-			usersOut = append(usersOut, rv.Index(i).Interface().(*User))
-		}
-	}*/
 	return users, nil
 }
 
 func dbGetUserById(ctx context.Context, tx pgx.Tx, userID string) (*User, error) {
 	res := []*User{}
-	err := pgxscan.Select(context.Background(), db, &res, `SELECT * FROM users WHERE id = $1`, userID)
+	err := pgxscan.Select(context.Background(), Db(), &res, `SELECT * FROM users WHERE id = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +95,7 @@ func dbGetUserById(ctx context.Context, tx pgx.Tx, userID string) (*User, error)
 	return res[0], nil
 }
 
-func dbGetUsersByRegex(ctx context.Context /*tx pgx.Tx,*/, regexMap map[string]string) ([]User, error) {
+func dbGetUsersByRegex(ctx context.Context, regexMap map[string]string) ([]User, error) {
 	res := []User{}
 	regexFilter := ``
 	for key, value := range regexMap {
@@ -122,16 +107,13 @@ func dbGetUsersByRegex(ctx context.Context /*tx pgx.Tx,*/, regexMap map[string]s
 			regexFilter = newFilter
 		}
 	}
-	//start := time.Now()
 	regexFilter = `SELECT * FROM users WHERE ` + regexFilter + ` ORDER BY id`
-	rows, err := db.Query(context.Background(), regexFilter)
+	rows, err := Db().Query(context.Background(), regexFilter)
 	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
-	//elapsed := time.Since(start)
-	//fmt.Printf("Execution SELECT: %v\n", elapsed)
-	//start = time.Now()
+
 	if err := pgxscan.ScanAll(&res, rows); err != nil {
 		return nil, err
 	}
@@ -141,7 +123,5 @@ func dbGetUsersByRegex(ctx context.Context /*tx pgx.Tx,*/, regexMap map[string]s
 	if len(res) == 0 {
 		return nil, ErrUserNotFound
 	}
-	//elapsed = time.Since(start)
-	//fmt.Printf("Execution of scan: %v\n", elapsed)
 	return res, nil
 }

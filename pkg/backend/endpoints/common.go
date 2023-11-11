@@ -13,18 +13,19 @@ import (
 
 const DateFormat = "2006-01-02"
 
-func CheckAuthorization(ctx context.Context, r *http.Request, userID string) error {
+func CheckAuthorization(ctx context.Context, r *http.Request) (string, error) {
 	reqToken := r.Header.Get("Authorization")
 	splitToken := strings.Split(reqToken, "Bearer ") // FIXME: to Token
 	if len(splitToken) <= 1 {
-		return ErrRequestNotAuthorized
+		return "", ErrRequestNotAuthorized
 	}
 	reqToken = splitToken[1]
 
-	if storage.CheckLoginToken(ctx, reqToken, userID) != nil {
-		return ErrRequestNotAuthorized
+	userID, err := storage.ValidateLoginToken(ctx, reqToken)
+	if err != nil {
+		return "", ErrRequestNotAuthorized
 	}
-	return nil
+	return userID, nil
 }
 
 func GetRequestID(r *http.Request) (string, error) {
