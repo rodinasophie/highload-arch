@@ -3,3 +3,4 @@
 **/*.vscode/
 **/bin/
 **/.DS_Store
+db-data-leader/pgslave/
