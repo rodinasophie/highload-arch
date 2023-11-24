@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -15,6 +16,7 @@ const (
 
 var db *pgxpool.Pool
 var replicaDb *pgxpool.Pool
+var cache *redis.Client
 
 const DB_USE_REPLICA = false
 
@@ -42,4 +44,13 @@ func CreateReplicaConnectionPool() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func ConnectToCache() {
+	opt, err := redis.ParseURL(config.GetString("cache.url"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	cache = redis.NewClient(opt)
+	CacheUpdatePosts(context.Background())
 }

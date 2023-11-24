@@ -23,20 +23,25 @@ CREATE TABLE IF NOT EXISTS user_tokens (
 );
 
 CREATE TABLE IF NOT EXISTS friends (
-    user_id UUID NOT NULL,
-    friend_id UUID NOT NULL
+    user_id UUID REFERENCES users(id)  NOT NULL,
+    friend_id UUID REFERENCES users(id) NOT NULL,
+    PRIMARY KEY(user_id, friend_id) 
 );
 
-/*CREATE TABLE IF NOT EXISTS dialogs (
+CREATE TABLE IF NOT EXISTS dialogs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     author_id UUID NOT NULL, 
     recepient_id UUID NOT NULL,
-    time TIMESTAMP,
-    message VARCHAR(400)
-);*/
+    created_at TIMESTAMP NOT NULL,
+    text VARCHAR(400) NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS posts (
-    id UUID PRIMARY KEY, /* post id */
-    author_id UUID NOT NULL /* author_id */
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    author_user_id UUID NOT NULL,
+    text VARCHAR(1000) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS users_idx ON users(first_name, second_name);

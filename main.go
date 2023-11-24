@@ -12,6 +12,7 @@ func main() {
 	config.Load("config.yaml")
 	storage.CreateConnectionPool()
 	storage.CreateReplicaConnectionPool()
+	storage.ConnectToCache()
 
 	log.Printf("Server started")
 	router := backend.NewRouter()

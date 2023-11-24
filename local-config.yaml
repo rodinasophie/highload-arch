@@ -2,4 +2,8 @@ server:
   port: ":8083"
 
 db:
-  master: "host=127.0.0.1 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable pool_max_conns=50"
+  master: "host=localhost port=5435 user=admin_user password=1111 dbname=social_net sslmode=disable"
+  replica: "host=localhost port=5433 user=admin_user password=1111 dbname=social_net sslmode=disable "
+
+cache:
+  url: "redis://localhost:6379/0"

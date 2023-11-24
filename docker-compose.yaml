@@ -12,6 +12,7 @@ services:
     volumes:
       - "./db-data-leader/pg_setup.sh:/etc/pg_setup.sh"
       - "./db-data-leader/people.csv:/people.csv"
+      - "./db-data-leader/posts.csv:/posts.csv"
       - "./db-data-leader/pgslave:/pgslave"
       - "./db-data-leader/pgpass:/root/.pgpass"
       - "./db/schema.sql:/etc/highload-arch/schema.sql"
@@ -63,6 +64,19 @@ services:
         ctl_net:
           ipv4_address: 172.16.238.93
 
+  db-cache:
+    image: redis:7.2.3
+    container_name: ha-db-cache
+    #environment:
+    #volumes:
+    ports:
+      - 6379:6379
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.94
+
+
   backend:
     build:
       context: ./
@@ -70,10 +84,10 @@ services:
     container_name: highload-arch-backend
     command: bash -c 'while true; do sleep 1; done'
     ports:
-      - "8082:8082"
+      - "8083:8083"
     networks:
       ctl_net:
-        ipv4_address: 172.16.238.94
+        ipv4_address: 172.16.238.95
 
 networks:
   ctl_net:

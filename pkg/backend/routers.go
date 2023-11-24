@@ -88,4 +88,53 @@ var routes = Routes{
 		"/friend/delete/{user_id}",
 		endpoints.FriendDeletePut,
 	},
+
+	Route{
+		"PostCreatePost",
+		strings.ToUpper("Post"),
+		"/post/create",
+		endpoints.PostCreatePost,
+	},
+
+	Route{
+		"PostDeletePut",
+		strings.ToUpper("Put"),
+		"/post/delete/{id}",
+		endpoints.PostDeletePut,
+	},
+
+	Route{
+		"PostGetGet",
+		strings.ToUpper("Get"),
+		"/post/get/{id}",
+		endpoints.PostGetGet,
+	},
+
+	Route{
+		"PostUpdatePut",
+		strings.ToUpper("Put"),
+		"/post/update",
+		endpoints.PostUpdatePut,
+	},
+
+	Route{
+		"PostFeedGet",
+		strings.ToUpper("Get"),
+		"/post/feed",
+		endpoints.PostFeedGet,
+	},
+
+	Route{
+		"DialogUserIdSendPost",
+		strings.ToUpper("Post"),
+		"/dialog/{user_id}/send",
+		endpoints.DialogUserIdSendPost,
+	},
+
+	Route{
+		"DialogUserIdListGet",
+		strings.ToUpper("Get"),
+		"/dialog/{user_id}/list",
+		endpoints.DialogUserIdListGet,
+	},
 }

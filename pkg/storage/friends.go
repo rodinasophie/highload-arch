@@ -2,15 +2,14 @@ package storage
 
 import (
 	"context"
-	"time"
 
+	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4"
 )
 
 type FriendRequest struct {
-	UserID    string    `pg:"user_id"`
-	FriendID  string    `pg:"friend_id"`
-	CreatedAt time.Time `pg:"created_at"`
+	UserID   string `pg:"user_id"`
+	FriendID string `pg:"friend_id"`
 }
 
 func (req *FriendRequest) dbAddFriend(ctx context.Context, tx pgx.Tx) error {
@@ -27,6 +26,23 @@ func (req *FriendRequest) dbDeleteFriend(ctx context.Context, tx pgx.Tx) error {
 		req.UserID, req.FriendID)
 
 	return err
+}
+
+func dbLoadFriends(ctx context.Context) ([]FriendRequest, error) {
+	res := []FriendRequest{}
+
+	rows, err := db.Query(ctx, `SELECT user_id, friend_id FROM friends;`)
+
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := pgxscan.ScanAll(&res, rows); err != nil {
+		return nil, err
+	}
+
+	return res, err
 }
 
 func AddFriend(ctx context.Context, userID string, friendID string) error {
@@ -51,4 +67,12 @@ func DeleteFriend(ctx context.Context, userID string, friendID string) error {
 		return nil, nil
 	})
 	return err
+}
+
+func GetFriends(ctx context.Context) ([]FriendRequest, error) {
+	friends, err := dbLoadFriends(ctx)
+	if err != nil {
+		return nil, nil
+	}
+	return friends, err
 }

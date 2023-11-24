@@ -15,17 +15,17 @@ func FriendAddPut(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	friendID, ok := vars["user_id"]
 	if !ok {
-		log.Println("user id is missing in parameters")
-	}
-	var err error
-	if err != nil {
+		log.Println("user_id is missing in parameters")
 		GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
-
 	userID, err := CheckAuthorization(context.Background(), r)
 	if err != nil {
 		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
+		return
+	}
+	if friendID == userID {
+		GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 
@@ -48,10 +48,7 @@ func FriendDeletePut(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	friendID, ok := vars["user_id"]
 	if !ok {
-		log.Println("id is missing in parameters")
-	}
-	var err error
-	if err != nil {
+		log.Println("user_id is missing in parameters")
 		GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
@@ -61,7 +58,10 @@ func FriendDeletePut(w http.ResponseWriter, r *http.Request) {
 		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 		return
 	}
-
+	if friendID == userID {
+		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		return
+	}
 	err = storage.DeleteFriend(context.Background(), userID, friendID)
 	if err != nil {
 		log.Println(err)

@@ -117,9 +117,7 @@ func dbGetUsersByRegex(ctx context.Context, regexMap map[string]string) ([]User,
 	if err := pgxscan.ScanAll(&res, rows); err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
+
 	if len(res) == 0 {
 		return nil, ErrUserNotFound
 	}
