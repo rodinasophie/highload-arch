@@ -22,3 +22,4 @@
 Для запуска стенда следует использовать следующие команды:
 `make docker-reset && make docker-init && make docker-cache && make docker-backend && make docker-run && make init-system`
 
+Сервер доступен на `http://localhost:8083/`
