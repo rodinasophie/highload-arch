@@ -1,6 +1,26 @@
 # Кеширование  
 Данная домашняя работа была направлена на изучение кеширования в высоконагруженных системах. В качестве кеша был использован Redis, инвалидация кеша поддерживается через опережающее кеширование, все запросы на чтение с бэкенда идут в кеш, раз в указанный период происходит обновление кеша и данные синхронизируются с базой. В кеше хранятся последние 1000 постов.
 
+Схема базы данных:
+```sql
+CREATE TABLE IF NOT EXISTS friends (
+    user_id UUID REFERENCES users(id)  NOT NULL,
+    friend_id UUID REFERENCES users(id) NOT NULL,
+    PRIMARY KEY(user_id, friend_id) 
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    author_user_id UUID NOT NULL,
+    text VARCHAR(1000) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+```
+
+В кеше помимо списка постов, хранится маппинг пользователь-друг для корректной фильтрации выдачи.
+
 Следующие докер-контейнеры были созданы для сборки стенда:
 1. База данных(лидер + 1 реплика)
 2. Сервер бэкенда
