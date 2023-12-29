@@ -48,3 +48,11 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE INDEX IF NOT EXISTS users_idx ON users(first_name, second_name);
+
+SELECT create_distributed_table('users', 'id');
+SELECT create_distributed_table('user_credentials', 'id', colocate_with => 'users');
+SELECT create_distributed_table('user_tokens', 'id', colocate_with => 'users');
+SELECT create_distributed_table('friends', 'id', colocate_with => 'users');
+SELECT create_distributed_table('posts', 'author_user_id', colocate_with => 'users');
+
+SELECT create_distributed_table('dialogs', 'dialog_id');

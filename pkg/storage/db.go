@@ -19,6 +19,7 @@ var replicaDb *pgxpool.Pool
 var cache *redis.Client
 
 const DB_USE_REPLICA = false
+const DB_CITUS_ENABLED = true
 
 func Db() *pgxpool.Pool {
 	if !DB_USE_REPLICA {
@@ -29,7 +30,11 @@ func Db() *pgxpool.Pool {
 
 func CreateConnectionPool() {
 	var err error
-	db, err = pgxpool.Connect(context.Background(), config.GetString("db.master"))
+	default_db := "db.master"
+	if DB_CITUS_ENABLED {
+		default_db = "citus.master"
+	}
+	db, err = pgxpool.Connect(context.Background(), config.GetString(default_db))
 	if err != nil {
 		log.Fatal(err)
 	}

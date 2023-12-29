@@ -125,10 +125,10 @@ var routes = Routes{
 	},
 
 	Route{
-		"DialogUserIdSendPost",
+		"DialogUserIdSendMessage",
 		strings.ToUpper("Post"),
 		"/dialog/{user_id}/send",
-		endpoints.DialogUserIdSendPost,
+		endpoints.DialogUserIdSendMessage,
 	},
 
 	Route{

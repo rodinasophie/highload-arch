@@ -43,7 +43,7 @@ func (req *PostRequest) dbUpdatePost(ctx context.Context, tx pgx.Tx) error {
 	return err
 }
 
-func dbFeedPosts(ctx context.Context, userID string) ([]PostRequest, error) {
+func dbFeedPosts(ctx context.Context, userID string, offset, limit int) ([]PostRequest, error) {
 	res := []PostRequest{}
 
 	rows, err := db.Query(ctx,
@@ -58,15 +58,21 @@ func dbFeedPosts(ctx context.Context, userID string) ([]PostRequest, error) {
 		return nil, err
 	}
 
-	return res, err
+	if offset >= len(res) {
+		return nil, nil
+	}
+	if offset+limit > len(res) {
+		return res[offset:], nil
+	}
+	return res[offset:limit], nil
 }
 
 /* Load last 1000 updated posts from DB */
-func dbLoadPosts(ctx context.Context) ([]PostRequest, error) {
+func dbLoadPosts(ctx context.Context, limit int) ([]PostRequest, error) {
 	res := []PostRequest{}
 
 	rows, err := db.Query(ctx,
-		`SELECT id, author_user_id, created_at, updated_at, text FROM posts WHERE author_user_id in (SELECT friend_id FROM friends) ORDER BY updated_at LIMIT 1000`)
+		`SELECT id, author_user_id, created_at, updated_at, text FROM posts WHERE author_user_id in (SELECT friend_id FROM friends) ORDER BY updated_at LIMIT $1`, limit)
 
 	defer rows.Close()
 	if err != nil {
@@ -152,9 +158,18 @@ func FeedPosts(ctx context.Context, userID string, offset, limit int) ([]PostReq
 	if err != nil {
 		return nil, err
 	}
-	posts, err := cacheGetPosts(ctx, friends, offset, limit)
-	if err != nil {
-		return nil, err
+	var posts []PostRequest
+	if len(friends) != 0 {
+		posts, err = cacheGetPosts(ctx, friends, offset, limit)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if len(posts) == 0 {
+		posts, err = dbFeedPosts(ctx, userID, offset, limit)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return posts, nil
 }
@@ -229,7 +244,7 @@ func cacheGetPosts(ctx context.Context, friends []string, offset, limit int) ([]
 }
 
 func cacheUpdatePosts(ctx context.Context) {
-	posts, err := dbLoadPosts(ctx)
+	posts, err := dbLoadPosts(ctx, 1000)
 	if err != nil {
 		log.Println("Load posts failed: ", err)
 	}

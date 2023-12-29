@@ -8,13 +8,13 @@ import (
 )
 
 type FriendRequest struct {
-	UserID   string `pg:"user_id"`
+	UserID   string `pg:"id"`
 	FriendID string `pg:"friend_id"`
 }
 
 func (req *FriendRequest) dbAddFriend(ctx context.Context, tx pgx.Tx) error {
 	_, err := tx.Exec(ctx,
-		`INSERT INTO friends (user_id, friend_id) VALUES ($1, $2) ON CONFLICT (user_id, friend_id) DO NOTHING`,
+		`INSERT INTO friends (id, friend_id) VALUES ($1, $2) ON CONFLICT (id, friend_id) DO NOTHING`,
 		req.UserID, req.FriendID)
 
 	return err
@@ -22,7 +22,7 @@ func (req *FriendRequest) dbAddFriend(ctx context.Context, tx pgx.Tx) error {
 
 func (req *FriendRequest) dbDeleteFriend(ctx context.Context, tx pgx.Tx) error {
 	_, err := tx.Exec(ctx,
-		`DELETE from friends WHERE user_id = $1 AND friend_id = $2`,
+		`DELETE from friends WHERE id = $1 AND friend_id = $2`,
 		req.UserID, req.FriendID)
 
 	return err
@@ -31,7 +31,7 @@ func (req *FriendRequest) dbDeleteFriend(ctx context.Context, tx pgx.Tx) error {
 func dbLoadFriends(ctx context.Context) ([]FriendRequest, error) {
 	res := []FriendRequest{}
 
-	rows, err := db.Query(ctx, `SELECT user_id, friend_id FROM friends;`)
+	rows, err := db.Query(ctx, `SELECT id, friend_id FROM friends;`)
 
 	defer rows.Close()
 	if err != nil {

@@ -1,6 +1,9 @@
 server:
   port: ":8083"
 
+citus:
+  master: "host=172.16.238.96 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable"
+
 db:
   master: "host=172.16.238.91 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable"
   replica: "host=172.16.238.92 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable "

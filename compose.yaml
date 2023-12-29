@@ -1,0 +1,99 @@
+version: "3"
+services:
+  citus-coordinator:
+    image: citusdata/citus:12.1
+    container_name: ha-citus-coordinator
+    environment:
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=social_net
+      - PGPASSFILE=/root/.pgpass
+      - PGDATA=${PGDATA_LOCAL}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - "./db-data-leader/pgpass:/root/.pgpass"
+      - "./db/citus_schema.sql:/etc/highload-arch/schema.sql"
+      - "./db-data-leader/people.csv:/people.csv"
+      - "./db-data-leader/posts.csv:/posts.csv"
+
+
+    ports:
+      - 5438:5432
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.96
+
+  citus-worker-1:
+    image: citusdata/citus:12.1
+    container_name: ha-citus-worker-1
+    environment:
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=social_net
+      - PGPASSFILE=/root/.pgpass
+      - PGDATA=${PGDATA_LOCAL}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+
+    #volumes:
+    ports:
+      - 5439:5432
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.97
+
+  citus-worker-2:
+    image: citusdata/citus:12.1
+    container_name: ha-citus-worker-2
+    environment:
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - PGPASSFILE=/root/.pgpass
+      - POSTGRES_DB=social_net
+      - PGDATA=${PGDATA_LOCAL}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    #volumes:
+    ports:
+      - 5440:5432
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.100
+
+  db-cache:
+    image: redis:7.2.3
+    container_name: ha-db-cache
+    #environment:
+    #volumes:
+    ports:
+      - 6379:6379
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.98
+
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: highload-arch-backend
+    command: bash -c 'while true; do sleep 1; done'
+    ports:
+      - "8083:8083"
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.99
+
+networks:
+  ctl_net:
+    driver: bridge
+    enable_ipv6: false
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.1
+
+volumes:
+  db-data-leader:

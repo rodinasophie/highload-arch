@@ -10,25 +10,37 @@ import (
 
 type SendRequest struct {
 	AuthorID    string    `pg:"author_id"`
-	RecepientID string    `pg:"recepient"`
+	RecepientID string    `pg:"recepient_id"`
+	DialogID    string    `pg:"dialog_id"`
 	CreatedAt   time.Time `pg:"created_at"`
 	Text        string    `pg:"text"`
 }
 
+func getDialogId(author_id, recepient_id string) string {
+	dialogID := ""
+	if author_id > recepient_id {
+		dialogID = author_id + "_" + recepient_id
+	} else {
+		dialogID = recepient_id + "_" + author_id
+	}
+	return dialogID
+}
+
 func (req *SendRequest) dbAddDialogMessage(ctx context.Context, tx pgx.Tx) error {
+	dialogID := getDialogId(req.AuthorID, req.RecepientID)
 	_, err := tx.Exec(ctx,
-		`INSERT INTO dialogs (author_id, recepient_id, text, created_at) VALUES ($1, $2, $3, $4)`,
-		req.AuthorID, req.RecepientID, req.Text, req.CreatedAt)
+		`INSERT INTO dialogs (author_id, recepient_id, dialog_id, text, created_at) VALUES ($1, $2, $3, $4, $5)`,
+		req.AuthorID, req.RecepientID, dialogID, req.Text, req.CreatedAt)
 
 	return err
 }
 
 func dbGetDialog(ctx context.Context, userID, to string) ([]SendRequest, error) {
 	res := []SendRequest{}
+	dialogID := getDialogId(userID, to)
 
 	rows, err := db.Query(ctx,
-		`SELECT author_id, recepient_id, text FROM dialogs WHERE (author_id = $1 AND recepient_id = $2) OR (author_id = $2 AND recepient_id = $1)`,
-		userID, to)
+		`SELECT author_id, recepient_id, created_at, text FROM dialogs WHERE dialog_id = $1`, dialogID)
 	defer rows.Close()
 	if err != nil {
 		return nil, err

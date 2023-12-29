@@ -19,7 +19,7 @@ type DialogListBody struct {
 	Text string `json:"text"`
 }
 
-func DialogUserIdSendPost(w http.ResponseWriter, r *http.Request) {
+func DialogUserIdSendMessage(w http.ResponseWriter, r *http.Request) {
 	requestID, _ := GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	decoder := json.NewDecoder(r.Body)

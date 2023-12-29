@@ -4,6 +4,28 @@ build-server:
 build-client:
 	CGO_ENABLED=0 go build -gcflags="all=-N -l" -o bin/social-network-client -mod vendor client/main.go
 
+docker-citus:
+	docker compose up -d --build citus-coordinator;
+	docker compose up -d citus-worker-1;
+	sleep 20;
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"SELECT * from citus_set_coordinator_host('172.16.238.96');\"";
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"SELECT * from citus_add_node('172.16.238.97', 5432);\"";
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -f /etc/highload-arch/schema.sql social_net";
+
+docker-rebalance:
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"alter system set wal_level = logical;\"";
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"SELECT run_command_on_workers('alter system set wal_level = logical');\"";
+	docker restart ha-citus-coordinator;
+	docker restart ha-citus-worker-1;
+	docker compose up -d citus-worker-2;
+	sleep 10;
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"SELECT * from citus_add_node('172.16.238.100', 5432);\"";
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"SELECT citus_rebalance_start();\"";
+	sleep 10;
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"SELECT nodename, count(*) FROM citus_shards GROUP BY nodename;\"";
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"SELECT * FROM citus_rebalance_wait();\"";
+	docker exec -it ha-citus-coordinator sh -c "psql -U admin_user -d social_net -c \"SELECT nodename, count(*) FROM citus_shards GROUP BY nodename;\"";
+
 docker-init:
 	docker compose up -d db-leader  && sleep 2;
 	docker exec  -it ha-db-leader sh -c "chmod 0600 /root/.pgpass; psql -h localhost -U admin_user -d postgres -c \"drop role if exists replicator; create role replicator with login replication password 'pass';\" ";

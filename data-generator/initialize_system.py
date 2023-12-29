@@ -79,6 +79,24 @@ def feed_posts(users):
     else:
         print(r.json())
 
+def create_dialogs(users, fake, minMessages=0, maxMessages=20, numberOfDialogPairs=10):
+    numberOfMessages = random.randint(minMessages, maxMessages)
+    for i in range(numberOfDialogPairs):
+        user_pairs = random.sample(list(users.keys()), 2)
+        user1 = user_pairs[0]
+        user2 = user_pairs[1]
+        for k in range(numberOfMessages):
+            message = fake.paragraph(nb_sentences=7, variable_nb_sentences=True)
+            response = fake.paragraph(nb_sentences=7, variable_nb_sentences=True)
+            send_message(user1, users[user2], message)
+            send_message(user2, users[user1], response)
+
+def send_message(recepientID, token, message):
+    r = send_request(method='POST', url='http://localhost:8083/dialog/' + recepientID + '/send', json = {"text": message}, token=token)
+    if r.status_code != 200:
+        pass
+        #print(r, recepientID, token, message)
+
 
 def main():
     fake = Faker('ru_RU')
@@ -89,5 +107,6 @@ def main():
     create_posts(users, fake, 0, 10)
     time.sleep(60)
     feed_posts(users)
+    create_dialogs(users, fake, 0, 3, 5)
 
 main()
