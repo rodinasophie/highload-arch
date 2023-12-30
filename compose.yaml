@@ -85,6 +85,32 @@ services:
       ctl_net:
         ipv4_address: 172.16.238.99
 
+  db-tarantool:
+    image: tarantool/tarantool:latest
+    container_name: ha-db-tarantool
+    command: tarantool app.lua
+    environment:
+      - TARANTOOL_USER_NAME=admin_user
+      - TARANTOOL_USER_PASSWORD=1111
+    volumes:
+      - "./tarantool/app.lua:/opt/tarantool/app.lua"
+    ports:
+      - 3301:3301
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.101
+  
+  tt-nginx:
+    platform: "linux/amd64"
+    build:
+      context: ./
+      dockerfile: ./tarantool/nginx/Dockerfile-tt-nginx
+    container_name: ha-tt-nginx
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.102
+
 networks:
   ctl_net:
     driver: bridge
@@ -97,3 +123,4 @@ networks:
 
 volumes:
   db-data-leader:
+  tarantool:

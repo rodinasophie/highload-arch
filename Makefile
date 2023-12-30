@@ -67,3 +67,6 @@ perf-test:
 
 load-for-write:
 	python3 perf-testing/load.py
+
+docker-tt:
+	docker compose up --build -d tt-nginx db-tarantool 
