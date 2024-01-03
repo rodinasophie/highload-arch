@@ -47,7 +47,7 @@ func dbFeedPosts(ctx context.Context, userID string, offset, limit int) ([]PostR
 	res := []PostRequest{}
 
 	rows, err := db.Query(ctx,
-		`SELECT id, author_user_id, created_at, updated_at, text FROM posts WHERE author_user_id in (SELECT friend_id FROM friends WHERE user_id = $1)`, userID)
+		`SELECT id, author_user_id, created_at, updated_at, text FROM posts WHERE author_user_id in (SELECT friend_id FROM friends WHERE id = $1)`, userID)
 
 	defer rows.Close()
 	if err != nil {

@@ -4,12 +4,13 @@ go 1.20
 
 require (
 	github.com/georgysavva/scany v1.2.1
-	github.com/google/uuid v1.1.2
+	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/spf13/viper v1.16.0
+	github.com/tarantool/go-tarantool/v2 v2.0.0-20231228025437-02a8820b819e
 	golang.org/x/crypto v0.11.0
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 )
@@ -20,8 +21,14 @@ require (
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/mattn/go-pointer v0.0.1 // indirect
+	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
+	github.com/tarantool/go-iproto v1.0.0 // indirect
+	github.com/tarantool/go-openssl v0.0.8-0.20231004103608-336ca939d2ca // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 )
 

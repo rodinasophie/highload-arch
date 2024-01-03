@@ -2,11 +2,16 @@ server:
   port: ":8083"
 
 citus:
-  master: "host=localhost port=5438 user=admin_user password=1111 dbname=social_net sslmode=disable"
+  master: "host=localhost port=5438 user=admin_user password=1111 dbname=social_net sslmode=disable pool_max_conns=100"
 
 db:
-  master: "host=localhost port=5435 user=admin_user password=1111 dbname=social_net sslmode=disable"
+  master: "host=localhost port=5435 user=admin_user password=1111 dbname=social_net sslmode=disable pool_max_conns=100"
   replica: "host=localhost port=5433 user=admin_user password=1111 dbname=social_net sslmode=disable "
 
 cache:
   url: "redis://localhost:6379/0"
+
+tarantool:
+  url: "localhost:3301"
+  user: "admin_user"
+  pass: "1111"

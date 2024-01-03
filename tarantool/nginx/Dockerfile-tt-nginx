@@ -1,0 +1,20 @@
+FROM nickblah/lua:latest
+MAINTAINER doc@tarantool.org
+
+RUN apt update
+RUN apt-get install build-essential git gcc unzip libpcre3-dev zlib1g-dev libssl-dev libxslt-dev -y
+
+RUN git clone https://github.com/tarantool/nginx_upstream_module.git nginx_upstream_module
+WORKDIR nginx_upstream_module
+RUN git submodule update --init --recursive
+RUN git clone https://github.com/nginx/nginx.git nginx
+RUN apt-get install cmake -y
+# Ubuntu
+RUN make build-all
+WORKDIR /nginx_upstream_module/nginx
+RUN ./auto/configure --add-module=.. 
+RUN make && make install
+
+COPY ./tarantool/nginx/nginx.conf /usr/local/nginx/conf/nginx.conf
+VOLUME ["/var/cache/nginx"]
+CMD /usr/local/nginx/sbin/nginx -g "daemon off;"

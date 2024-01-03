@@ -30,10 +30,17 @@ func CheckUserPassword(ctx context.Context, userID string, password string) erro
 
 func (login *Login) dbReadPassword(ctx context.Context, tx pgx.Tx, userID string) (*Login, error) {
 	res := []*Login{}
-	err := pgxscan.Select(context.Background(), db, &res, `SELECT * FROM user_credentials WHERE id = $1`, userID)
+
+	rows, err := Db().Query(context.Background(), `SELECT * FROM user_credentials WHERE id = $1`, userID)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+
+	if err := pgxscan.ScanAll(&res, rows); err != nil {
+		return nil, err
+	}
+
 	if len(res) == 0 {
 		return nil, ErrUserNotFound
 	}
