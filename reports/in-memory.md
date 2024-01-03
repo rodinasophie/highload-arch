@@ -44,7 +44,7 @@ end
 ```
 
 Для запуска стенда следует использовать следующие команды:
-`make docker-reset && make docker-citus && make docker-cache && make docker-tt && make docker-backend && make docker-run`
+`make docker-reset && make docker-init && make docker-cache && make docker-tt && make docker-backend && make docker-run`
 
 `Docker-compose` файл для поддержки `Tarantool` - `docker-compose.yaml`.
 
@@ -58,6 +58,8 @@ PostgreSQL              |  Tarantool
 !["PostgreSQL"](images/in-memory/psql_send_dialogs.png ) | !["Tatantool"](images/in-memory/tt_send_dialogs.png)
 
 Видно, что вызов метода `/dialog/:id/send` в PostgreSQL требует больше ресурсов, что снижает RPS и увеличивает время ответа на запрос. Tarantool быстрее отрабатывает на данном запросе ввиду более эффективной стратегии хранения данных в памяти.
+
+Увеличение RPS для Tarantool в сравнении с PostgreSQL составило `~ +20%`, уменьшение времени ответа `~ -30%`.
 
 ### Нагрузка на чтение(`/dialog:id/list`)
 PostgreSQL              |  Tarantool
