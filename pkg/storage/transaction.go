@@ -13,16 +13,18 @@ func HandleInTransaction(ctx context.Context, callback Callback) (interface{}, e
 	if err != nil {
 		return nil, err
 	}
-
-	defer tx.Rollback(ctx)
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
 	var val interface{}
 	val, err = callback(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = tx.Commit(ctx); err != nil {
-		return nil, err
-	}
 	return val, nil
 }

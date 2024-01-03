@@ -85,13 +85,28 @@ func SearchUsers(ctx context.Context, firstName string, secondName string) ([]Us
 
 func dbGetUserById(ctx context.Context, tx pgx.Tx, userID string) (*User, error) {
 	res := []*User{}
-	err := pgxscan.Select(context.Background(), Db(), &res, `SELECT * FROM users WHERE id = $1`, userID)
+
+	rows, err := Db().Query(context.Background(), `SELECT * FROM users WHERE id = $1`, userID)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := pgxscan.ScanAll(&res, rows); err != nil {
+		return nil, err
+	}
+
+	if len(res) == 0 {
+		return nil, ErrUserNotFound
+	}
+
+	/*/err := pgxscan.Select(context.Background(), Db(), &res, `SELECT * FROM users WHERE id = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
 	if len(res) == 0 {
 		return nil, ErrUserNotFound
-	}
+	}*/
 	return res[0], nil
 }
 

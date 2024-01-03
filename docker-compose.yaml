@@ -89,6 +89,23 @@ services:
       ctl_net:
         ipv4_address: 172.16.238.95
 
+  db-tarantool:
+    image: tarantool/tarantool:latest
+    platform: "linux/amd64"
+    container_name: ha-db-tarantool
+    command: tarantool /opt/tarantool/app.lua
+    environment:
+      - TARANTOOL_USER_NAME=admin_user
+      - TARANTOOL_USER_PASSWORD=1111
+    volumes:
+      - "./tarantool/app.lua:/opt/tarantool/app.lua"
+    ports:
+      - 3301:3301
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.101
+
 networks:
   ctl_net:
     driver: bridge

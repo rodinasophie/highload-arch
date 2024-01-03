@@ -1,8 +1,8 @@
 build-server:
-	CGO_ENABLED=0 go build -gcflags="all=-N -l" -o bin/social-network -mod vendor main.go
+	CGO_ENABLED=0 go build -tags=go_tarantool_ssl_disable -gcflags=" all=-N -l" -o bin/social-network -mod vendor main.go
 
 build-client:
-	CGO_ENABLED=0 go build -gcflags="all=-N -l" -o bin/social-network-client -mod vendor client/main.go
+	CGO_ENABLED=0 go build -tags=go_tarantool_ssl_disable -gcflags="all=-N -l" -o bin/social-network-client -mod vendor client/main.go
 
 docker-citus:
 	docker compose up -d --build citus-coordinator;
@@ -65,8 +65,14 @@ select-prefix:
 perf-test:
 	locust -f perf-testing/main.py  --host=http://localhost:8083
 
+perf-test-dialogs-send:
+	locust -f perf-testing/dialogs_send.py  --host=http://localhost:8083
+
+perf-test-dialogs-get:
+	locust -f perf-testing/dialogs_get.py  --host=http://localhost:8083
+
 load-for-write:
 	python3 perf-testing/load.py
 
 docker-tt:
-	docker compose up --build -d tt-nginx db-tarantool 
+	docker compose up -d --build db-tarantool 

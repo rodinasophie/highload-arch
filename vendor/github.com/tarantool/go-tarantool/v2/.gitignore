@@ -1,0 +1,7 @@
+*.DS_Store
+*.swp
+.idea/
+work_dir*
+.rocks
+bench*
+testdata/sidecar/main

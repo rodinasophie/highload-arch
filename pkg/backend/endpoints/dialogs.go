@@ -53,7 +53,6 @@ func DialogUserIdSendMessage(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
 	err = storage.SendMessage(context.Background(), userID, to, dialog.Text)
 	if err != nil {
 		log.Println(err)
@@ -87,12 +86,11 @@ func DialogUserIdListGet(w http.ResponseWriter, r *http.Request) {
 		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 
 	var resp []*DialogListBody
 	for _, message := range dialog {
 		resp = append(resp, &DialogListBody{From: message.AuthorID, To: message.RecepientID, Text: message.Text})
 	}
 	json.NewEncoder(w).Encode(resp)
-
-	w.WriteHeader(http.StatusOK)
 }

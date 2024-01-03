@@ -66,10 +66,17 @@ func (login *Login) dbAddLoginToken(ctx context.Context, tx pgx.Tx, token string
 
 func (login *Login) dbReadToken(ctx context.Context, tx pgx.Tx, token string) (*LoginToken, error) {
 	res := []*LoginToken{}
-	err := pgxscan.Select(context.Background(), db, &res, `SELECT * FROM user_tokens WHERE token = $1`, token)
+
+	rows, err := Db().Query(context.Background(), `SELECT * FROM user_tokens WHERE token = $1`, token)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+
+	if err := pgxscan.ScanAll(&res, rows); err != nil {
+		return nil, err
+	}
+
 	if len(res) == 0 {
 		return nil, ErrTokenNotFound
 	}
@@ -78,10 +85,17 @@ func (login *Login) dbReadToken(ctx context.Context, tx pgx.Tx, token string) (*
 
 func (login *Login) dbReadTokenByID(ctx context.Context, tx pgx.Tx, userID string) (*LoginToken, error) {
 	res := []*LoginToken{}
-	err := pgxscan.Select(context.Background(), db, &res, `SELECT * FROM user_tokens WHERE id = $1`, userID)
+
+	rows, err := Db().Query(context.Background(), `SELECT * FROM user_tokens WHERE id = $1`, userID)
+	defer rows.Close()
 	if err != nil {
 		return nil, err
 	}
+
+	if err := pgxscan.ScanAll(&res, rows); err != nil {
+		return nil, err
+	}
+
 	if len(res) == 0 {
 		return nil, ErrTokenNotFound
 	}

@@ -87,8 +87,9 @@ services:
 
   db-tarantool:
     image: tarantool/tarantool:latest
+    platform: "linux/amd64"
     container_name: ha-db-tarantool
-    command: tarantool app.lua
+    command: tarantool /opt/tarantool/app.lua
     environment:
       - TARANTOOL_USER_NAME=admin_user
       - TARANTOOL_USER_PASSWORD=1111
@@ -103,6 +104,8 @@ services:
   
   tt-nginx:
     platform: "linux/amd64"
+    ports:
+      - 443:80
     build:
       context: ./
       dockerfile: ./tarantool/nginx/Dockerfile-tt-nginx
