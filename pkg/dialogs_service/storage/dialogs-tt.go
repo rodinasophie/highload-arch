@@ -2,7 +2,7 @@ package storage
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"reflect"
 	"time"
 
@@ -16,7 +16,7 @@ func SendMessageTT(ctx context.Context, userID, to, text string) error {
 	).Get()
 
 	if err != nil {
-		fmt.Println("TT: Error while send_message()")
+		log.Println("TT: Error while send_message()")
 		return err
 	}
 	return nil
@@ -29,7 +29,7 @@ func DialogListTT(ctx context.Context, userID, to string) ([]SendRequest, error)
 		Args([]interface{}{dialogID}),
 	).Get()
 	if err != nil {
-		fmt.Println("TT: Error while get_dialog()")
+		log.Println("TT: Error while get_dialog()")
 		return nil, err
 	}
 	var dialog []SendRequest

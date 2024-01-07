@@ -28,16 +28,6 @@ CREATE TABLE IF NOT EXISTS friends (
     PRIMARY KEY(id, friend_id) 
 );
 
-CREATE TABLE IF NOT EXISTS dialogs (
-    id UUID DEFAULT uuid_generate_v4(),
-    author_id UUID NOT NULL, 
-    recepient_id UUID NOT NULL,
-    dialog_id VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    text VARCHAR(400) NOT NULL,
-    PRIMARY KEY(id, dialog_id) 
-);
-
 CREATE TABLE IF NOT EXISTS posts (
     id UUID DEFAULT uuid_generate_v4(),
     author_user_id UUID NOT NULL,

@@ -1,0 +1,26 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    # Я запущу filebeat в докере и проброшу логи приложения по данному пути
+    paths:
+      - /host_metrics_app/service.log
+      - /host_metrics_app/dialog-service.log
+    # В fields мы можем указать дополнительные поля, а затем в logstash вытаскивать их 
+    # и делать какую-нибудь дополнительную работу с логами
+    fields:
+      # Название нашего сервиса
+      service: social-network
+
+  - type: log
+    enabled: true
+    # Я запущу filebeat в докере и проброшу логи приложения по данному пути
+    paths:
+      - /host_metrics_app/dialog-service.log
+    # В fields мы можем указать дополнительные поля, а затем в logstash вытаскивать их 
+    # и делать какую-нибудь дополнительную работу с логами
+    fields:
+      # Название нашего сервиса
+      service: social-network-dialogs
+output.logstash:
+  # Будьте внимательны при запуске вне докера и вместо logstash укажите правильный адрес хоста с logstash. 
+  hosts: ["logstash:5044"]

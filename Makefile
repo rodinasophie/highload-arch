@@ -38,6 +38,19 @@ docker-init:
 	#docker exec -it ha-db-leader sh -c "psql -U admin_user -d social_net -c \"COPY posts(author_user_id, text, created_at, updated_at) FROM '/posts.csv' DELIMITER U&'\0009' CSV HEADER;\"";
 	#docker exec -it ha-db-leader sh -c "psql -U admin_user -d social_net -c \"UPDATE posts SET author_user_id = (SELECT id from users ORDER BY random()+(select extract(epoch from created_at)) LIMIT 1);\" ";
 
+docker-dialogs-db:
+	docker compose up -d db-dialogs 
+	docker exec -it ha-db-dialogs sh -c "psql -U admin_user -f /etc/highload-arch/dialogs_schema.sql dialogs_social_net";
+
+build-dialogs:
+	CGO_ENABLED=1 go build -tags=go_tarantool_ssl_disable -gcflags=" all=-N -l" -o bin/dialogs -mod vendor pkg/dialogs_service/main.go
+
+docker-dialogs:
+	docker compose up --build -d dialogs && sleep 5;
+
+docker-run-dialogs:
+	docker exec -d highload-arch-dialogs sh -c "./bin/dialogs" && sleep 5;
+
 docker-cache:
 	docker compose up -d db-cache 
 
@@ -76,3 +89,6 @@ load-for-write:
 
 docker-tt:
 	docker compose up -d --build db-tarantool 
+
+docker-logs:
+	docker compose up -d --build elasticsearch kibana logstash beats

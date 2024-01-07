@@ -3,6 +3,7 @@ package endpoints
 import (
 	"context"
 	"encoding/json"
+	"highload-arch/pkg/common"
 	"highload-arch/pkg/storage"
 	"log"
 	"net/http"
@@ -43,7 +44,7 @@ type UserGetResponseID struct {
 }
 
 func UserGetIdGet(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
+	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	vars := mux.Vars(r)
 	userID, ok := vars["id"]
@@ -52,23 +53,23 @@ func UserGetIdGet(w http.ResponseWriter, r *http.Request) {
 	}
 	var err error
 	if err != nil {
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 
 	_, err = CheckAuthorization(context.Background(), r)
 	if err != nil {
-		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
+		common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 		return
 	}
 	var user *storage.User
 	user, err = storage.GetUser(context.Background(), userID)
 	if err != nil {
 		log.Println(err)
-		if err == storage.ErrUserNotFound {
-			GenerateError(w, http.StatusNotFound, requestID, "10m")
+		if err == common.ErrUserNotFound {
+			common.GenerateError(w, http.StatusNotFound, requestID, "10m")
 		} else {
-			GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+			common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		}
 		return
 	}
@@ -78,25 +79,25 @@ func UserGetIdGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserRegisterPost(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
+	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	decoder := json.NewDecoder(r.Body)
 	var rb UserRegisterBody
 	err := decoder.Decode(&rb)
 	if err != nil {
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 	birthdate, err := time.Parse(time.DateOnly, rb.Birthdate)
 	if err != nil {
 		log.Println(err)
-		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
 	id, err := storage.AddUser(context.Background(), &storage.User{ID: "", FirstName: rb.FirstName, SecondName: rb.SecondName, Birthdate: birthdate, Biography: rb.Biography, City: rb.City}, rb.Password)
 	if err != nil {
 		log.Println(err)
-		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -105,11 +106,11 @@ func UserRegisterPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserSearchGet(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
+	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	parsedQuery, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 	var firstName, secondName string
@@ -124,10 +125,10 @@ func UserSearchGet(w http.ResponseWriter, r *http.Request) {
 	users, err := storage.SearchUsers(context.Background(), firstName, secondName)
 	if err != nil {
 		log.Println(err)
-		if err == storage.ErrUserNotFound {
-			GenerateError(w, http.StatusNotFound, requestID, "10m")
+		if err == common.ErrUserNotFound {
+			common.GenerateError(w, http.StatusNotFound, requestID, "10m")
 		} else {
-			GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+			common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		}
 		return
 	}

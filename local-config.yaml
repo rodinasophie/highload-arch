@@ -1,4 +1,5 @@
 server:
+  host: "localhost:8083"
   port: ":8083"
 
 citus:
@@ -7,6 +8,11 @@ citus:
 db:
   master: "host=localhost port=5435 user=admin_user password=1111 dbname=social_net sslmode=disable pool_max_conns=100"
   replica: "host=localhost port=5433 user=admin_user password=1111 dbname=social_net sslmode=disable "
+
+dialogs:
+  db: "host=localhost port=5436 user=admin_user password=1111 dbname=dialogs_social_net sslmode=disable pool_max_conns=100"
+  port: ":8087"
+  host: "localhost:8087"
 
 cache:
   url: "redis://localhost:6379/0"

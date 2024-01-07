@@ -1,13 +1,9 @@
 package endpoints
 
 import (
-	"context"
-	"encoding/json"
-	"highload-arch/pkg/storage"
+	"highload-arch/pkg/config"
 	"log"
 	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 type DialogSendBody struct {
@@ -19,78 +15,54 @@ type DialogListBody struct {
 	Text string `json:"text"`
 }
 
-func DialogUserIdSendMessage(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	decoder := json.NewDecoder(r.Body)
-	var dialog DialogSendBody
-	err := decoder.Decode(&dialog)
-	if err != nil {
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
-		return
-	}
+func DialogUserIdSendMessage(w http.ResponseWriter, req *http.Request) {
+	url := req.URL
+	url.Host = config.GetString("dialogs.host")
+	url.Scheme = "http"
 
-	vars := mux.Vars(r)
-	to, ok := vars["user_id"]
-	if !ok {
-		log.Println("user_id is missing in parameters")
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
-		return
-	}
-
-	userID, err := CheckAuthorization(context.Background(), r)
-	if err != nil {
-		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
-		return
-	}
-	_, err = storage.GetUser(context.Background(), to)
+	proxyReq, err := http.NewRequest(req.Method, url.String(), req.Body)
 	if err != nil {
 		log.Println(err)
-		if err == storage.ErrUserNotFound {
-			GenerateError(w, http.StatusNotFound, requestID, "10m")
-		} else {
-			GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+		return
+	}
+
+	proxyReq.Header.Set("Host", req.Host)
+	proxyReq.Header.Set("X-Forwarded-For", req.RemoteAddr)
+	for header, values := range req.Header {
+		for _, value := range values {
+			proxyReq.Header.Add(header, value)
 		}
-		return
 	}
-	err = storage.SendMessage(context.Background(), userID, to, dialog.Text)
+
+	client := &http.Client{}
+	_, err = client.Do(proxyReq)
 	if err != nil {
 		log.Println(err)
-		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
-		return
 	}
-	w.WriteHeader(http.StatusOK)
-
 }
 
-func DialogUserIdListGet(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	vars := mux.Vars(r)
-	to, ok := vars["user_id"]
-
-	if !ok {
-		log.Println("user_id is missing in parameters")
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
-		return
-	}
-	userID, err := CheckAuthorization(context.Background(), r)
-	if err != nil {
-		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
-		return
-	}
-
-	dialog, err := storage.DialogList(context.Background(), userID, to)
+func DialogUserIdListGet(w http.ResponseWriter, req *http.Request) {
+	url := req.URL
+	url.Host = config.GetString("dialogs.host")
+	url.Scheme = "http"
+	proxyReq, err := http.NewRequest(req.Method, url.String(), req.Body)
 	if err != nil {
 		log.Println(err)
-		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 
-	var resp []*DialogListBody
-	for _, message := range dialog {
-		resp = append(resp, &DialogListBody{From: message.AuthorID, To: message.RecepientID, Text: message.Text})
+	proxyReq.Header.Set("Host", req.Host)
+	proxyReq.Header.Set("X-Forwarded-For", req.RemoteAddr)
+
+	for header, values := range req.Header {
+		for _, value := range values {
+			proxyReq.Header.Add(header, value)
+		}
 	}
-	json.NewEncoder(w).Encode(resp)
+
+	client := &http.Client{}
+	_, err = client.Do(proxyReq)
+	if err != nil {
+		log.Println(err)
+	}
 }

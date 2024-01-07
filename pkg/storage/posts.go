@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"highload-arch/pkg/common"
 	"log"
 	"time"
 
@@ -102,7 +103,7 @@ func dbGetPost(ctx context.Context, id string) (*PostRequest, error) {
 	}
 
 	if len(res) == 0 {
-		return nil, ErrPostNotFound
+		return nil, common.ErrPostNotFound
 	}
 
 	return &res[0], err

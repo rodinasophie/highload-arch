@@ -1,5 +1,24 @@
 version: "3"
 services:
+  db-dialogs:
+    image: postgres:14
+    container_name: ha-db-dialogs
+    environment:
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=dialogs_social_net
+      - PGPASSFILE=/root/.pgpass
+      - PGDATA=${PGDATA_LOCAL}
+    volumes:
+      - "./db-data-leader/pgpass:/root/.pgpass"
+      - "./db/dialogs_schema.sql:/etc/highload-arch/dialogs_schema.sql"
+    ports:
+      - 5436:5432
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.90
+  
   db-leader:
     image: postgres:14
     container_name: ha-db-leader
@@ -83,11 +102,28 @@ services:
       dockerfile: Dockerfile
     container_name: highload-arch-backend
     command: bash -c 'while true; do sleep 1; done'
+    volumes:
+      - ./service.log:/highload-arch/service.log:ro
     ports:
       - "8083:8083"
     networks:
       ctl_net:
         ipv4_address: 172.16.238.95
+
+  dialogs:
+    build:
+      context: ./
+      dockerfile: Dockerfile-dialogs
+    container_name: highload-arch-dialogs
+    command: bash -c 'while true; do sleep 1; done'
+    volumes:
+      - ./dialog-service.log:/highload-arch/dialog-service.log
+
+    ports:
+      - "8086:8086"
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.99
 
   db-tarantool:
     image: tarantool/tarantool:latest
@@ -106,6 +142,65 @@ services:
       ctl_net:
         ipv4_address: 172.16.238.101
 
+  elasticsearch:
+    image: elasticsearch:7.16.1
+    volumes:
+      - ./volume_elk/elk_config.yaml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      #- ./docker_volumes/elasticsearch/data:/usr/share/elasticsearch/data
+    environment:
+      ES_JAVA_OPTS: "-Xmx512m -Xms512m"
+      ELASTIC_USERNAME: "elastic"
+      ELASTIC_PASSWORD: "elastic"
+      discovery.type: single-node
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.102
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  logstash:
+    image: logstash:7.16.2
+    volumes:
+      - ./volume_elk/logstash_config.yaml:/usr/share/logstash/config/logstash.yml:ro
+      - ./volume_elk/logstash_pipelines.yaml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./volume_elk/pipelines/:/usr/share/logstash/config/pipelines:ro
+
+    environment:
+      LS_JAVA_OPTS: "-Xmx512m -Xms512m"
+    ports:
+      - "5044:5044"
+      - "5010:5000"
+      - "9600:9600"
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.103
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: kibana:7.16.1
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./volume_elk/kibana_config.yaml:/usr/share/kibana/config/kibana.yml:ro
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.104
+    ports:
+      - "5601:5601"
+
+  beats:
+    image: elastic/filebeat:7.16.2
+    volumes:
+      - ./volume_elk/filebeat_config.yaml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/host_metrics_app/:ro
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.105
+    depends_on:
+      - elasticsearch
+
 networks:
   ctl_net:
     driver: bridge
@@ -120,3 +215,4 @@ volumes:
   db-data-leader:
   db-data-replica:
   db-data-2:
+  volume_elk:

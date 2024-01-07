@@ -2,14 +2,12 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"highload-arch/pkg/config"
 	"log"
-	"time"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/redis/go-redis/v9"
-	tarantool "github.com/tarantool/go-tarantool/v2"
 )
 
 const (
@@ -20,11 +18,9 @@ const (
 var db *pgxpool.Pool
 var replicaDb *pgxpool.Pool
 var cache *redis.Client
-var tt *tarantool.Connection
 
 const DB_USE_REPLICA = false
 const DB_CITUS_ENABLED = false
-const DB_USE_TARANTOOL = false
 
 func Db() *pgxpool.Pool {
 	if !DB_USE_REPLICA {
@@ -65,45 +61,25 @@ func ConnectToCache() {
 	CacheUpdatePosts(context.Background())
 }
 
-func ConnectToTarantool() {
-	if !DB_USE_TARANTOOL {
-		fmt.Println("Tarantool disabled")
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(),
-		500*time.Millisecond)
-	defer cancel()
-	dialer := tarantool.NetDialer{
-		Address:  config.GetString("tarantool.url"),
-		User:     config.GetString("tarantool.user"),
-		Password: config.GetString("tarantool.pass"),
-	}
-	opts := tarantool.Opts{
-		Timeout: time.Second,
-	}
-	var err error
-	tt, err = tarantool.Connect(ctx, dialer, opts)
+type Callback func(context.Context, pgx.Tx) (interface{}, error)
+
+func HandleInTransaction(ctx context.Context, callback Callback) (interface{}, error) {
+	tx, err := db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		fmt.Println("Connection refused:", err)
+		return nil, err
 	}
-}
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
+	var val interface{}
+	val, err = callback(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
 
-func CloseTarantoolConnection() {
-	if tt != nil {
-		tt.Close()
-	}
-}
-
-func SendMessage(ctx context.Context, userID, to, text string) error {
-	if DB_USE_TARANTOOL {
-		return SendMessageTT(ctx, userID, to, text)
-	}
-	return SendMessageDB(ctx, userID, to, text)
-}
-
-func DialogList(ctx context.Context, userID, to string) ([]SendRequest, error) {
-	if DB_USE_TARANTOOL {
-		return DialogListTT(ctx, userID, to)
-	}
-	return DialogListDB(ctx, userID, to)
+	return val, nil
 }

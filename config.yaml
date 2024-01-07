@@ -1,4 +1,5 @@
 server:
+  host: "172.16.238.95:8083"
   port: ":8083"
 
 citus:
@@ -7,6 +8,11 @@ citus:
 db:
   master: "host=172.16.238.91 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable"
   replica: "host=172.16.238.92 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable "
+
+dialogs:
+  db: "host=172.16.238.90 port=5436 user=admin_user password=1111 dbname=dialogs_social_net sslmode=disable pool_max_conns=100"
+  port: ":8086"
+  host: "172.16.238.99:8086"
 
 cache:
   url: "redis://172.16.238.94:6379/0"
