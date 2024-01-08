@@ -31,7 +31,7 @@ docker-init:
 	docker exec  -it ha-db-leader sh -c "chmod 0600 /root/.pgpass; psql -h localhost -U admin_user -d postgres -c \"drop role if exists replicator; create role replicator with login replication password 'pass';\" ";
 	docker exec -d ha-db-leader sh -c "cd /etc/ && ./pg_setup.sh" && sleep 5;
 	docker exec -it ha-db-leader sh -c "rm -rf /pgslave; mkdir /pgslave; pg_basebackup -h localhost -D /pgslave -U replicator -w -v -P --wal-method=stream";
-	docker compose up  -d db-replica-1;
+	docker compose up  -d db-replica-1 db-replica-2;
 	docker exec -it ha-db-leader sh -c "psql -U admin_user -f /etc/highload-arch/schema.sql social_net";
 	# docker exec -it ha-db-leader sh -c "psql -U admin_user -d social_net -c \"COPY users(first_name, second_name, birthdate, city, biography) FROM '/people.csv' DELIMITER U&'\0009' CSV HEADER;\"";
 	#docker exec -it ha-db-leader sh -c "psql -U admin_user -d social_net -c \" UPDATE users SET biography = 'Empty' WHERE biography IS NULL;\"";
@@ -42,10 +42,16 @@ docker-cache:
 	docker compose up -d db-cache 
 
 docker-backend:
-	docker compose up --build -d backend && sleep 5;
+	docker compose up --build -d backend backend-2 backend-nginx && sleep 5;
+
+docker-backend-nginx:
+	docker compose up --build -d  backend-nginx && sleep 5;
 
 docker-run:
 	docker exec -d highload-arch-backend sh -c "./bin/social-network" && sleep 5;
+
+docker-run-2:	
+	docker exec -d highload-arch-backend-2 sh -c "./bin/social-network" && sleep 5;
 
 docker-reset:
 	docker compose down
@@ -66,7 +72,7 @@ perf-test:
 	locust -f perf-testing/main.py  --host=http://localhost:8083
 
 perf-test-dialogs-send:
-	locust -f perf-testing/dialogs_send.py  --host=http://localhost:8083
+	locust -f perf-testing/dialogs_send.py  --host=http://localhost:8070
 
 perf-test-dialogs-get:
 	locust -f perf-testing/dialogs_get.py  --host=http://localhost:8083
@@ -76,3 +82,7 @@ load-for-write:
 
 docker-tt:
 	docker compose up -d --build db-tarantool 
+
+docker-haproxy:
+	docker compose up -d --build haproxy 
+

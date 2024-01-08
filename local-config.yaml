@@ -8,6 +8,11 @@ db:
   master: "host=localhost port=5435 user=admin_user password=1111 dbname=social_net sslmode=disable pool_max_conns=100"
   replica: "host=localhost port=5433 user=admin_user password=1111 dbname=social_net sslmode=disable "
 
+db-balanced:
+  master: "host=localhost port=6432 user=admin_user password=1111 dbname=social_net sslmode=disable"
+  replica: "host=localhost port=6433 user=admin_user password=1111 dbname=social_net sslmode=disable"
+
+
 cache:
   url: "redis://localhost:6379/0"
 

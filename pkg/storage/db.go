@@ -22,9 +22,10 @@ var replicaDb *pgxpool.Pool
 var cache *redis.Client
 var tt *tarantool.Connection
 
-const DB_USE_REPLICA = false
+const DB_USE_REPLICA = true
 const DB_CITUS_ENABLED = false
 const DB_USE_TARANTOOL = false
+const DB_USE_BALANCING = true
 
 func Db() *pgxpool.Pool {
 	if !DB_USE_REPLICA {
@@ -39,6 +40,9 @@ func CreateConnectionPool() {
 	if DB_CITUS_ENABLED {
 		default_db = "citus.master"
 	}
+	if DB_USE_BALANCING {
+		default_db = "db-balanced.master"
+	}
 	db, err = pgxpool.Connect(context.Background(), config.GetString(default_db))
 	if err != nil {
 		log.Fatal(err)
@@ -49,8 +53,12 @@ func CreateReplicaConnectionPool() {
 	if !DB_USE_REPLICA {
 		return
 	}
+	default_db := "db.replica"
+	if DB_USE_BALANCING {
+		default_db = "db-balanced.replica"
+	}
 	var err error
-	replicaDb, err = pgxpool.Connect(context.Background(), config.GetString("db.replica"))
+	replicaDb, err = pgxpool.Connect(context.Background(), config.GetString(default_db))
 	if err != nil {
 		log.Fatal(err)
 	}

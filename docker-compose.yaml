@@ -76,7 +76,6 @@ services:
       ctl_net:
         ipv4_address: 172.16.238.94
 
-
   backend:
     build:
       context: ./
@@ -88,6 +87,18 @@ services:
     networks:
       ctl_net:
         ipv4_address: 172.16.238.95
+
+  backend-2:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: highload-arch-backend-2
+    command: bash -c 'while true; do sleep 1; done'
+    ports:
+      - "8084:8083"
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.103
 
   db-tarantool:
     image: tarantool/tarantool:latest
@@ -105,6 +116,36 @@ services:
     networks:
       ctl_net:
         ipv4_address: 172.16.238.101
+
+  haproxy:
+    image: haproxy:2.3
+    platform: "linux/amd64"
+    container_name: ha-haproxy
+    command: "/usr/local/sbin/haproxy -f /usr/local/etc/haproxy/haproxy.cfg > /var/log/haproxy.log 2>&1 &"
+    volumes:
+      - "./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+    ports:
+      - 6432:6432
+      - 6433:6433
+      - 7010:7000
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.102
+
+  backend-nginx:
+    image: nginx
+    platform: "linux/amd64"
+    container_name: ha-backend-nginx
+    #environment:
+    volumes:
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+    ports:
+      - 8070:8070
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.104
 
 networks:
   ctl_net:

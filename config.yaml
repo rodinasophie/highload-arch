@@ -6,12 +6,16 @@ citus:
 
 db:
   master: "host=172.16.238.91 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable"
-  replica: "host=172.16.238.92 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable "
+  replica: "host=172.16.238.92 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable"
+
+db-balanced:
+  master: "host=172.16.238.102 port=6432 user=admin_user password=1111 dbname=social_net sslmode=disable"
+  replica: "host=172.16.238.102 port=6433 user=admin_user password=1111 dbname=social_net sslmode=disable"
 
 cache:
   url: "redis://172.16.238.94:6379/0"
 
 tarantool:
-  url: "172.16.238.102:3301"
+  url: "172.16.238.101:3301"
   user: "admin_user"
   pass: "1111"
