@@ -32,6 +32,7 @@ func NewRouter() *mux.Router {
 			Handler(handler)
 	}
 
+	router.HandleFunc("/post/feed/posted", endpoints.PostFeedGetWebsocket)
 	return router
 }
 

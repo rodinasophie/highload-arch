@@ -8,14 +8,14 @@ import (
 )
 
 type FriendRequest struct {
-	UserID   string `pg:"id"`
+	ID       string `pg:"id"`
 	FriendID string `pg:"friend_id"`
 }
 
 func (req *FriendRequest) dbAddFriend(ctx context.Context, tx pgx.Tx) error {
 	_, err := tx.Exec(ctx,
 		`INSERT INTO friends (id, friend_id) VALUES ($1, $2) ON CONFLICT (id, friend_id) DO NOTHING`,
-		req.UserID, req.FriendID)
+		req.ID, req.FriendID)
 
 	return err
 }
@@ -23,7 +23,7 @@ func (req *FriendRequest) dbAddFriend(ctx context.Context, tx pgx.Tx) error {
 func (req *FriendRequest) dbDeleteFriend(ctx context.Context, tx pgx.Tx) error {
 	_, err := tx.Exec(ctx,
 		`DELETE from friends WHERE id = $1 AND friend_id = $2`,
-		req.UserID, req.FriendID)
+		req.ID, req.FriendID)
 
 	return err
 }
@@ -45,8 +45,25 @@ func dbLoadFriends(ctx context.Context) ([]FriendRequest, error) {
 	return res, err
 }
 
+func dbLoadFriendsByUser(ctx context.Context, userID string) ([]FriendRequest, error) {
+	res := []FriendRequest{}
+
+	rows, err := db.Query(ctx, `SELECT id, friend_id FROM friends WHERE id = $1;`, userID)
+
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := pgxscan.ScanAll(&res, rows); err != nil {
+		return nil, err
+	}
+
+	return res, err
+}
+
 func AddFriend(ctx context.Context, userID string, friendID string) error {
-	req := &FriendRequest{UserID: userID, FriendID: friendID}
+	req := &FriendRequest{ID: userID, FriendID: friendID}
 	_, err := HandleInTransaction(ctx, func(ctx context.Context, tx pgx.Tx) (interface{}, error) {
 		err := req.dbAddFriend(ctx, tx)
 		if err != nil {
@@ -58,7 +75,7 @@ func AddFriend(ctx context.Context, userID string, friendID string) error {
 }
 
 func DeleteFriend(ctx context.Context, userID string, friendID string) error {
-	req := &FriendRequest{UserID: userID, FriendID: friendID}
+	req := &FriendRequest{ID: userID, FriendID: friendID}
 	_, err := HandleInTransaction(ctx, func(ctx context.Context, tx pgx.Tx) (interface{}, error) {
 		err := req.dbDeleteFriend(ctx, tx)
 		if err != nil {
@@ -71,6 +88,14 @@ func DeleteFriend(ctx context.Context, userID string, friendID string) error {
 
 func GetFriends(ctx context.Context) ([]FriendRequest, error) {
 	friends, err := dbLoadFriends(ctx)
+	if err != nil {
+		return nil, nil
+	}
+	return friends, err
+}
+
+func GetFriendsByUser(ctx context.Context, userID string) ([]FriendRequest, error) {
+	friends, err := dbLoadFriendsByUser(ctx, userID)
 	if err != nil {
 		return nil, nil
 	}

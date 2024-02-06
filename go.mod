@@ -6,12 +6,14 @@ require (
 	github.com/georgysavva/scany v1.2.1
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/pkg/errors v0.9.1
+	github.com/rabbitmq/amqp091-go v1.9.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/spf13/viper v1.16.0
 	github.com/tarantool/go-tarantool/v2 v2.0.0-20231228025437-02a8820b819e
-	golang.org/x/crypto v0.11.0
+	golang.org/x/crypto v0.14.0
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 )
 
@@ -29,7 +31,7 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
-	golang.org/x/net v0.12.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
 )
 
 require (
@@ -53,7 +55,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	golang.org/x/sys v0.14.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

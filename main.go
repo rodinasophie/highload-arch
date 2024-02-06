@@ -16,9 +16,14 @@ func main() {
 	log.Printf("Connecting to Cache")
 	storage.ConnectToCache()
 	log.Printf("Connecting to TT")
-	storage.ConnectToTarantool()
 
+	storage.ConnectToTarantool()
 	defer storage.CloseTarantoolConnection()
+
+	log.Printf("Connecting to RabbitMQ")
+	storage.ConnectToRabbitMQ()
+	defer storage.CloseRabbitMQ()
+
 	log.Printf("Server started")
 	router := backend.NewRouter()
 

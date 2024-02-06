@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 	tarantool "github.com/tarantool/go-tarantool/v2"
 )
@@ -21,6 +22,7 @@ var db *pgxpool.Pool
 var replicaDb *pgxpool.Pool
 var cache *redis.Client
 var tt *tarantool.Connection
+var rbmq *amqp.Connection
 
 const DB_USE_REPLICA = false
 const DB_CITUS_ENABLED = false
@@ -86,6 +88,19 @@ func ConnectToTarantool() {
 	if err != nil {
 		fmt.Println("Connection refused:", err)
 	}
+}
+
+func ConnectToRabbitMQ() {
+	url := config.GetString("rabbitmq.url")
+	var err error
+	rbmq, err = amqp.Dial(url)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func CloseRabbitMQ() {
+	rbmq.Close()
 }
 
 func CloseTarantoolConnection() {

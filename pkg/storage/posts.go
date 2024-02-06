@@ -2,11 +2,13 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"time"
 
 	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"golang.org/x/exp/slices"
 )
 
@@ -16,7 +18,7 @@ type PostRequest struct {
 	CreatedAt    time.Time `pg:"created_at"`
 	UpdatedAt    time.Time `pg:"updated_at"`
 	Text         string    `pg:"text"`
-	UserID       string
+	//UserID       string
 }
 
 const CACHE_TTL = 10 // Cache TTl in seconds
@@ -117,7 +119,55 @@ func CreatePost(ctx context.Context, userID string, text string) error {
 		}
 		return nil, nil
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	err = QueuePostCreatedMessage(ctx, req)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func QueuePostCreatedMessage(ctx context.Context, req *PostRequest) error {
+	channel, err := rbmq.Channel()
+	if err != nil {
+		log.Println("RBMQ: Channel creation failed")
+		return err
+	}
+	defer channel.Close()
+
+	err = channel.ExchangeDeclare(
+		"createdPosts", // name
+		"topic",        // type
+		false,          // durable
+		false,          // auto-deleted
+		false,          // internal
+		false,          // no-wait
+		nil,            // arguments
+	)
+
+	if err != nil {
+		log.Println("Cannot create exchange")
+		return err
+	}
+	reqBytes, err := json.Marshal(*req)
+	if err != nil {
+		log.Println("Cannot marshal post request to bytes array")
+		return err
+	}
+	// rounting key: userID.postID
+	err = channel.PublishWithContext(ctx,
+		"createdPosts",              // exchange
+		req.AuthorUserID+"."+req.ID, // routing key
+		false,                       // mandatory
+		false,                       // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        reqBytes,
+		})
+
+	return nil
 }
 
 func DeletePost(ctx context.Context, id string) error {
@@ -263,9 +313,9 @@ func cacheUpdatePosts(ctx context.Context) {
 	friends, err := GetFriends(ctx)
 	if err == nil {
 		for _, friend := range friends {
-			friendSettings := map[string]string{"user_id": friend.UserID, "friend_id": friend.FriendID}
+			friendSettings := map[string]string{"user_id": friend.ID, "friend_id": friend.FriendID}
 			for k, v := range friendSettings {
-				err := cache.HSet(ctx, "user_friends:"+friend.UserID, k, v).Err()
+				err := cache.HSet(ctx, "user_friends:"+friend.ID, k, v).Err()
 				if err != nil {
 					log.Println("Cache update failed: ", err)
 					return

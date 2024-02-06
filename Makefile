@@ -75,4 +75,7 @@ load-for-write:
 	python3 perf-testing/load.py
 
 docker-tt:
-	docker compose up -d --build db-tarantool 
+	docker compose up -d --build db-tarantool
+
+docker-queue:
+	docker compose up -d --build rabbitmq
