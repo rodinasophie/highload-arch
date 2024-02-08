@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	config.Load("local-config.yaml")
+	config.Load("config.yaml")
 	log.Printf("Connecting to Postgres")
 	storage.CreateConnectionPool()
 	storage.CreateReplicaConnectionPool()

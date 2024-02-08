@@ -10,7 +10,7 @@
 2. `ReadPostCreatedMessageFromQueue` - чтение сообщений из топика на стороне `/post/create/posted`
 
 ## Разворачивание стенда
-```make docker-reset && && make docker-queue && make docker-init && make docker-cache && make build-server && ./bin/social-network```
+```make docker-reset && make docker-queue && make docker-init && make docker-cache && make docker-backend && make docker-run```
 ```make init-system``` - инициализация базы данных
 Открытие соединения по websocket идет по адресу `ws://127.0.0.1:8083/post/feed/posted`. Для websocket-соединения поддерживается `Authorization: Bearer <Token>`
 Отправка нового поста поддерживается через `http://localhost:8083/post/create`
