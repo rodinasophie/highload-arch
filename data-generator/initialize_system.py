@@ -23,7 +23,7 @@ def send_request(method, url, token="", json={}):
 def create_users(filename, users):
     df = pd.read_csv(filename, delimiter='\t', header=None, keep_default_na=False)
     for row in df.itertuples():
-        r = send_request(method='POST', url='http://localhost:8083/user/register',
+        r = send_request(method='POST', url='http://localhost:8083/api/v2/user/register',
                     json = {"first_name": row[1],
                             "second_name": row[2],
                             "birthdate": row[3],
@@ -34,7 +34,7 @@ def create_users(filename, users):
         if r.status_code != 200:
             print(r)
         else:
-            r2 = send_request(method='POST', url='http://localhost:8083/login',
+            r2 = send_request(method='POST', url='http://localhost:8083/api/v2/login',
                            json = {
                               "id": r.json()['user_id'],
                               "password": DEFAULT_PASSWORD
@@ -52,7 +52,7 @@ def make_friends(users, minFriends=0, maxFriends=20):
         friends = random.sample(list(ids), numberOfFriends)
         for friend in friends:
             if friend != id:
-                r = send_request(method='PUT', url='http://localhost:8083/friend/add/' + friend, token=users[id])
+                r = send_request(method='PUT', url='http://localhost:8083/api/v2/friend/add/' + friend, token=users[id])
                 if r.status_code != 200:
                     print(r)
 
@@ -66,14 +66,14 @@ def create_posts(users, fake, minPosts=0, maxPosts=20):
             create_post(id, users[id], post)
 
 def create_post(userID, token, post):
-    r = send_request(method='POST', url='http://localhost:8083/post/create', json = {"text": post}, token=token)
+    r = send_request(method='POST', url='http://localhost:8083/api/v2/post/create', json = {"text": post}, token=token)
     if r.status_code != 200:
         print(r)
 
 def feed_posts(users):
     numberOfUsers = len(users)
     randomUsers = random.sample(list(users.keys()), 1)
-    r = send_request(method='GET', url='http://localhost:8083/post/feed?offset=0&limit=2', token=users[randomUsers[0]])
+    r = send_request(method='GET', url='http://localhost:8083/api/v2/post/feed?offset=0&limit=2', token=users[randomUsers[0]])
     if r.status_code != 200:
         print(r)
     else:
@@ -90,12 +90,17 @@ def create_dialogs(users, fake, minMessages=0, maxMessages=20, numberOfDialogPai
             response = fake.paragraph(nb_sentences=7, variable_nb_sentences=True)
             send_message(user1, users[user2], message)
             send_message(user2, users[user1], response)
+            get_message(user1, users[user2])
 
 def send_message(recepientID, token, message):
-    r = send_request(method='POST', url='http://localhost:8083/dialog/' + recepientID + '/send', json = {"text": message}, token=token)
+    r = send_request(method='POST', url='http://localhost:8086/api/v2/dialog/' + recepientID + '/send', json = {"text": message}, token=token)
     if r.status_code != 200:
         pass
         #print(r, recepientID, token, message)
+
+def get_message(recepientID, token):
+    r = send_request(method='GET', url='http://localhost:8086/api/v2/dialog/' + recepientID + '/list', token=token)
+
 
 
 def main():
@@ -104,9 +109,9 @@ def main():
 
     create_users("./people_small.csv", users)
     make_friends(users, 0, 20)
-    create_posts(users, fake, 0, 10)
+    #create_posts(users, fake, 0, 10)
     time.sleep(60)
-    feed_posts(users)
+    #feed_posts(users)
     create_dialogs(users, fake, 0, 3, 5)
 
 main()

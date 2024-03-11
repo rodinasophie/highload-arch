@@ -20,8 +20,8 @@ func setLoggerFile(filename string) *os.File {
 }
 
 func main() {
-	f := setLoggerFile("./logs/service.log")
-	defer f.Close()
+	//f := setLoggerFile("./logs/service.log")
+	//defer f.Close()
 
 	config.Load("local-config.yaml")
 	log.Println("Connecting to Postgres")

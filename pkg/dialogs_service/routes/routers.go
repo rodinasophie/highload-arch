@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/gorilla/mux"
 )
 
@@ -34,6 +36,8 @@ func NewRouter() *mux.Router {
 			Name(route.Name).
 			Handler(handler)
 	}
+
+	router.Handle(PREFIX_V2+"/metrics", promhttp.Handler())
 
 	return router
 }

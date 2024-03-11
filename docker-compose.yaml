@@ -118,7 +118,6 @@ services:
     command: bash -c 'while true; do sleep 1; done'
     volumes:
       - ./dialog-service.log:/highload-arch/dialog-service.log
-
     ports:
       - "8086:8086"
     networks:
@@ -201,6 +200,84 @@ services:
     depends_on:
       - elasticsearch
 
+  grafana:
+    image: grafana/grafana-enterprise:9
+    container_name: ha-grafana
+#      volumes:
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.110
+    ports:
+      - "3000:3000"
+
+  prometheus:
+    image: prom/prometheus
+    container_name: ha-prometheus
+    volumes:
+      - ./volume_monitoring/prometheus.yaml:/etc/prometheus/prometheus.yml
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.111
+    ports:
+      - "9090:9090"
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:latest
+    container_name: ha-zabbix-server
+    environment:
+      - DB_SERVER_HOST=172.16.238.90
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=zabbix
+#      volumes:
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.112
+    ports:
+      - "10051:10051"
+      - "10061:10061"
+
+  zabbix-apache:
+    image: zabbix/zabbix-web-apache-pgsql:latest
+    container_name: ha-zabbix-apache
+    environment:
+      - DB_SERVER_HOST=172.16.238.90
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=zabbix
+      - ZBX_SERVER_HOST=172.16.238.112
+#      volumes:
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.114
+    ports:
+      - "8089:8080"
+    links:
+      - zabbix-server
+
+  zabbix-agent-2:
+    image: zabbix/zabbix-agent2:latest
+    container_name: ha-zabbix-agent-2
+    environment:
+      - DB_SERVER_HOST=172.16.238.90
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=zabbix
+      - ZBX_SERVER_HOST=172.16.238.112
+      - ZBX_HOSTNAME=ha-zabbix-agent-2
+      - ZBX_ACTIVESERVERS=172.16.238.112:10061
+#      volumes:
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.115
+    links:
+      - zabbix-server
+    ports:
+      - "10050:10050"
+    init: true
+    privileged: true
+
+
 networks:
   ctl_net:
     driver: bridge
@@ -216,3 +293,4 @@ volumes:
   db-data-replica:
   db-data-2:
   volume_elk:
+  volume_monitoring:

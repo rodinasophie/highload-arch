@@ -2,8 +2,10 @@ package main
 
 import (
 	"highload-arch/pkg/config"
+	"highload-arch/pkg/dialogs_service/metrics"
 	"highload-arch/pkg/dialogs_service/routes"
 	"highload-arch/pkg/dialogs_service/storage"
+
 	"log"
 	"os"
 
@@ -23,7 +25,7 @@ func setLoggerFile(filename string) *os.File {
 func main() {
 	f := setLoggerFile("./logs/dialog-service.log")
 	defer f.Close()
-	config.Load("local-config.yaml")
+	config.Load("config.yaml")
 	log.Printf("Connecting to Postgres")
 	storage.CreateConnectionPool()
 	log.Printf("Connecting to TT")
@@ -31,6 +33,7 @@ func main() {
 
 	defer storage.CloseTarantoolConnection()
 	log.Printf("Server started")
+	metrics.InitMetrics()
 	router := routes.NewRouter()
 
 	log.Fatal(http.ListenAndServe(config.GetString("dialogs.port"), router))

@@ -3,13 +3,15 @@ package endpoints
 import (
 	"context"
 	"encoding/json"
-	"highload-arch/pkg/common"
 	"highload-arch/pkg/config"
+	"highload-arch/pkg/dialogs_service/common"
+	"highload-arch/pkg/dialogs_service/metrics"
 	"highload-arch/pkg/dialogs_service/storage"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -67,41 +69,51 @@ func CheckAuth(r *http.Request) string {
 }
 
 func DialogUserIdSendMessage(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	errorCode := dialogUserIdSendMessage(w, r)
+	metrics.IncRequests(errorCode, r.Method, "dialog_send_message")
+	metrics.AddLatencyValue(start, r.Method, "dialog_send_message")
+}
+
+func dialogUserIdSendMessage(w http.ResponseWriter, r *http.Request) int {
 	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	decoder := json.NewDecoder(r.Body)
 	var dialog DialogSendBody
 	err := decoder.Decode(&dialog)
 	if err != nil {
-		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
-		return
+		return common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 	}
 
 	vars := mux.Vars(r)
 	to, ok := vars["user_id"]
 	if !ok {
 		log.Println("user_id is missing in parameters")
-		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
-		return
+		return common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 	}
 
 	userID := CheckAuth(r)
 	if userID == "" {
-		common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
-		return
+		return common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 	}
 
 	err = storage.SendMessage(context.Background(), userID, to, dialog.Text)
 	if err != nil {
 		log.Println(err)
-		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
-		return
+		return common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 	}
 	w.WriteHeader(http.StatusOK)
-
+	return http.StatusOK
 }
 
 func DialogUserIdListGet(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+	errorCode := dialogUserIdListGet(w, r)
+	metrics.IncRequests(errorCode, r.Method, "dialog_get_list")
+	metrics.AddLatencyValue(start, r.Method, "dialog_get_list")
+}
+
+func dialogUserIdListGet(w http.ResponseWriter, r *http.Request) int {
 	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	vars := mux.Vars(r)
@@ -109,20 +121,17 @@ func DialogUserIdListGet(w http.ResponseWriter, r *http.Request) {
 
 	if !ok {
 		log.Println("user_id is missing in parameters")
-		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
-		return
+		return common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 	}
 	userID := CheckAuth(r)
 	if userID != "" {
-		common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
-		return
+		return common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 	}
 
 	dialog, err := storage.DialogList(context.Background(), userID, to)
 	if err != nil {
 		log.Println(err)
-		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
-		return
+		return common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 	}
 	w.WriteHeader(http.StatusOK)
 
@@ -131,4 +140,5 @@ func DialogUserIdListGet(w http.ResponseWriter, r *http.Request) {
 		resp = append(resp, &DialogListBody{From: message.AuthorID, To: message.RecepientID, Text: message.Text})
 	}
 	json.NewEncoder(w).Encode(resp)
+	return http.StatusOK
 }

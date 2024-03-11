@@ -61,8 +61,8 @@ def init_dialogs(n):
         user2 = random_users[1]
         connected_users.append([user1, user2, users[user2]])
         message = fake.paragraph(nb_sentences=7, variable_nb_sentences=True)
-        send_request(method='POST', url = f"http://localhost:8083"+ PREFIX_VERSION + f"/dialog/" +  user1 + f"/send", json = {"text": message[:400]}, token = users[user2])
-        send_request(method='POST', url = f"http://localhost:8083" + PREFIX_VERSION + f"/dialog/" +  user2 + f"/send", json = {"text": message[:400]}, token = users[user1])
+        send_request(method='POST', url = f"http://localhost:8086"+ PREFIX_VERSION + f"/dialog/" +  user1 + f"/send", json = {"text": message[:400]}, token = users[user2])
+        send_request(method='POST', url = f"http://localhost:8086" + PREFIX_VERSION + f"/dialog/" +  user2 + f"/send", json = {"text": message[:400]}, token = users[user1])
 
 init_dialogs(100)
 print("Dialogs initialized.")

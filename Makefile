@@ -57,6 +57,15 @@ docker-cache:
 docker-backend:
 	docker compose up --build -d backend && sleep 5;
 
+docker-grafana:
+	docker compose up --build -d grafana
+
+docker-prom:
+	docker compose up --build -d prometheus
+
+docker-zabbix:
+	docker compose up --build -d zabbix-apache zabbix-server
+
 docker-run:
 	docker exec -d highload-arch-backend sh -c "./bin/social-network" && sleep 5;
 

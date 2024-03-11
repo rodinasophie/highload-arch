@@ -4,3 +4,9 @@ WORKDIR /highload-arch
 
 COPY ./ /highload-arch
 RUN cd /highload-arch && make build-dialogs
+
+WORKDIR /zabbix
+RUN wget https://repo.zabbix.com/zabbix/3.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.0-2+bionic_all.deb 
+RUN dpkg -i zabbix-release_3.0-2+bionic_all.deb && apt-get update && apt-get install zabbix-agent -y
+COPY ./volume_monitoring/zabbix_agentd.conf /etc/zabbix/zabbix_agentd.conf
+RUN /usr/sbin/zabbix_agentd

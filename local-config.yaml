@@ -21,3 +21,7 @@ tarantool:
   url: "localhost:3301"
   user: "admin_user"
   pass: "1111"
+
+zabbix:
+  host: "localhost"
+  port: "10051"
