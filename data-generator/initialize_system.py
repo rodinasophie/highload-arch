@@ -3,6 +3,7 @@ import pandas as pd
 from faker import Faker
 import random
 import time
+from websocket import create_connection
 
 users = {}
 
@@ -106,7 +107,7 @@ def main():
     make_friends(users, 0, 20)
     create_posts(users, fake, 0, 10)
     time.sleep(60)
-    feed_posts(users)
-    create_dialogs(users, fake, 0, 3, 5)
+    #feed_posts(users)
+    #create_dialogs(users, fake, 0, 3, 5)
 
 main()

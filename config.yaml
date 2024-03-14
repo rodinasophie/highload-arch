@@ -21,3 +21,6 @@ tarantool:
   url: "172.16.238.102:3301"
   user: "admin_user"
   pass: "1111"
+
+rabbitmq:
+  url: "amqp://user:pass@172.16.238.105:5672/"

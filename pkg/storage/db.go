@@ -7,6 +7,7 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -18,6 +19,9 @@ const (
 var db *pgxpool.Pool
 var replicaDb *pgxpool.Pool
 var cache *redis.Client
+
+var tt *tarantool.Connection
+var rbmq *amqp.Connection
 
 const DB_USE_REPLICA = false
 const DB_CITUS_ENABLED = false
@@ -62,6 +66,24 @@ func ConnectToCache() {
 }
 
 type Callback func(context.Context, pgx.Tx) (interface{}, error)
+
+func ConnectToRabbitMQ() {
+	url := config.GetString("rabbitmq.url")
+	var err error
+	rbmq, err = amqp.Dial(url)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func CloseRabbitMQ() {
+	rbmq.Close()
+}
+
+func CloseTarantoolConnection() {
+	if tt != nil {
+		tt.Close()
+}
 
 func HandleInTransaction(ctx context.Context, callback Callback) (interface{}, error) {
 	tx, err := db.BeginTx(ctx, pgx.TxOptions{})

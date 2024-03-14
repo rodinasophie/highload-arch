@@ -20,16 +20,27 @@ func setLoggerFile(filename string) *os.File {
 }
 
 func main() {
+
 	f := setLoggerFile("./logs/service.log")
 	defer f.Close()
 
 	config.Load("local-config.yaml")
 	log.Println("Connecting to Postgres")
-	storage.CreateConnectionPool()
+
+  storage.CreateConnectionPool()
 	storage.CreateReplicaConnectionPool()
 	log.Println("Connecting to Cache")
 	storage.ConnectToCache()
-	log.Println("Server started")
+
+  log.Printf("Connecting to TT")
+	storage.ConnectToTarantool()
+	defer storage.CloseTarantoolConnection()
+
+	log.Printf("Connecting to RabbitMQ")
+	storage.ConnectToRabbitMQ()
+	defer storage.CloseRabbitMQ()
+
+	log.Printf("Server started")
 	router := backend.NewRouter()
 
 	log.Fatal(http.ListenAndServe(config.GetString("server.port"), router))

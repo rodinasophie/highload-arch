@@ -21,3 +21,6 @@ tarantool:
   url: "localhost:3301"
   user: "admin_user"
   pass: "1111"
+
+rabbitmq:
+  url: "amqp://user:pass@localhost:5672/"

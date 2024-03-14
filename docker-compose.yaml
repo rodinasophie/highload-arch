@@ -142,6 +142,21 @@ services:
       ctl_net:
         ipv4_address: 172.16.238.101
 
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: ha-rabbitmq
+    environment:
+      - "RABBITMQ_DEFAULT_PASS=pass"
+      - "RABBITMQ_DEFAULT_USER=user"
+    #volumes:
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.105
+
   elasticsearch:
     image: elasticsearch:7.16.1
     volumes:

@@ -11,7 +11,10 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	websocket "github.com/gorilla/websocket"
 )
+
+const WEBSOCKET_ENABLED = true
 
 type PostCreateBody struct {
 	Text string `json:"text"`
@@ -50,6 +53,7 @@ func PostCreatePost(w http.ResponseWriter, r *http.Request) {
 		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -138,6 +142,50 @@ func PostUpdatePut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func sendPostViaWebsocket(conn *websocket.Conn, post []byte) {
+	log.Println("Sending message to websocket")
+	if err := conn.WriteMessage(1, post); err != nil {
+		log.Println(err)
+		return
+	}
+}
+
+func PostFeedGetWebsocket(w http.ResponseWriter, r *http.Request) {
+	userID, err := CheckAuthorization(context.Background(), r)
+
+	if err != nil {
+		log.Println("Authorization failed for websocket")
+		return
+	}
+	var upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
+
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	// upgrade this connection to a WebSocket
+	// connection
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	err = ws.WriteMessage(1, []byte("Hi Client!"))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	// listen indefinitely for new messages coming
+	// through on our WebSocket connection
+
+	err = ReadPostCreatedMessageFromQueue(context.Background(), userID, sendPostViaWebsocket, ws)
+	if err != nil {
+		log.Println("Cannot read messages from queue on the client side")
+		return
+	}
 }
 
 func PostFeedGet(w http.ResponseWriter, r *http.Request) {
