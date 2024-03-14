@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"highload-arch/pkg/common"
 
 	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4"
@@ -24,7 +25,7 @@ func CheckUserPassword(ctx context.Context, userID string, password string) erro
 	if CheckPasswordHash(requestLogin.Password, dbLogin.(*Login).Password) {
 		return nil
 	} else {
-		return ErrPasswordInvalid
+		return common.ErrPasswordInvalid
 	}
 }
 
@@ -42,7 +43,7 @@ func (login *Login) dbReadPassword(ctx context.Context, tx pgx.Tx, userID string
 	}
 
 	if len(res) == 0 {
-		return nil, ErrUserNotFound
+		return nil, common.ErrUserNotFound
 	}
 	return res[0], nil
 }

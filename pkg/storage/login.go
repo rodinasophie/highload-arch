@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"highload-arch/pkg/common"
 	"log"
 	"time"
 
@@ -32,10 +33,10 @@ func LoginUser(ctx context.Context, login *Login) (*LoginToken, error) {
 		return nil, err
 	}
 	loginToken, err := login.getLoginToken(ctx)
-	if err != nil && err != ErrTokenNotFound && err != ErrTokenExpired {
+	if err != nil && err != common.ErrTokenNotFound && err != common.ErrTokenExpired {
 		return nil, err
 	}
-	if err == ErrTokenNotFound || err == ErrTokenExpired {
+	if err == common.ErrTokenNotFound || err == common.ErrTokenExpired {
 		// generate token
 		log.Println("Generating new token for user ", login.ID)
 		token := generateSecureToken(TokenLength)
@@ -78,7 +79,7 @@ func (login *Login) dbReadToken(ctx context.Context, tx pgx.Tx, token string) (*
 	}
 
 	if len(res) == 0 {
-		return nil, ErrTokenNotFound
+		return nil, common.ErrTokenNotFound
 	}
 	return res[0], nil
 }
@@ -97,7 +98,7 @@ func (login *Login) dbReadTokenByID(ctx context.Context, tx pgx.Tx, userID strin
 	}
 
 	if len(res) == 0 {
-		return nil, ErrTokenNotFound
+		return nil, common.ErrTokenNotFound
 	}
 	return res[0], nil
 }
@@ -123,7 +124,7 @@ func (login *Login) getLoginToken(ctx context.Context) (*LoginToken, error) {
 	}
 	loginTokenStruct := loginToken.(*LoginToken)
 	if loginTokenStruct.ValidUntil.Before(time.Now()) {
-		return nil, ErrTokenExpired
+		return nil, common.ErrTokenExpired
 	}
 	return loginToken.(*LoginToken), nil
 }
@@ -143,7 +144,7 @@ func ValidateLoginToken(ctx context.Context, token string) (string, error) {
 	}
 	loginTokenStruct := loginToken.(*LoginToken)
 	if loginTokenStruct.ValidUntil.Before(time.Now()) {
-		return "", ErrTokenExpired
+		return "", common.ErrTokenExpired
 	}
 	return loginTokenStruct.ID, nil
 }

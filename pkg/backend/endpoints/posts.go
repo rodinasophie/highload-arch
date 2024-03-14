@@ -3,6 +3,7 @@ package endpoints
 import (
 	"context"
 	"encoding/json"
+	"highload-arch/pkg/common"
 	"highload-arch/pkg/storage"
 	"log"
 	"net/http"
@@ -31,25 +32,25 @@ type PostUpdateBody struct {
 }
 
 func PostCreatePost(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
+	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	decoder := json.NewDecoder(r.Body)
 	var pb PostCreateBody
 	err := decoder.Decode(&pb)
 	if err != nil {
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 	userID, err := CheckAuthorization(context.Background(), r)
 	if err != nil {
-		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
+		common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 		return
 	}
 
 	err = storage.CreatePost(context.Background(), userID, pb.Text)
 	if err != nil {
 		log.Println(err)
-		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
 
@@ -57,55 +58,55 @@ func PostCreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostDeletePut(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
+	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 
 	if !ok {
 		log.Println("id is missing in parameters")
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 	_, err := CheckAuthorization(context.Background(), r)
 	if err != nil {
-		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
+		common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 		return
 	}
 
 	err = storage.DeletePost(context.Background(), id)
 	if err != nil {
 		log.Println(err)
-		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 }
 
 func PostGetGet(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
+	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 
 	if !ok {
 		log.Println("id is missing in parameters")
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 	_, err := CheckAuthorization(context.Background(), r)
 	if err != nil {
-		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
+		common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 		return
 	}
 
 	post, err := storage.GetPost(context.Background(), id)
 	if err != nil {
 		log.Println(err)
-		if err == storage.ErrPostNotFound {
-			GenerateError(w, http.StatusNotFound, requestID, "10m")
+		if err == common.ErrPostNotFound {
+			common.GenerateError(w, http.StatusNotFound, requestID, "10m")
 		} else {
-			GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+			common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		}
 		return
 	}
@@ -117,26 +118,26 @@ func PostGetGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostUpdatePut(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
+	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	decoder := json.NewDecoder(r.Body)
 	var pb PostUpdateBody
 	err := decoder.Decode(&pb)
 	if err != nil {
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 
 	_, err = CheckAuthorization(context.Background(), r)
 	if err != nil {
-		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
+		common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 		return
 	}
 
 	err = storage.UpdatePost(context.Background(), pb.Id, pb.Text)
 	if err != nil {
 		log.Println(err)
-		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
 
@@ -188,12 +189,12 @@ func PostFeedGetWebsocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostFeedGet(w http.ResponseWriter, r *http.Request) {
-	requestID, _ := GetRequestID(r)
+	requestID, _ := common.GetRequestID(r)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	parsedQuery, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 	var offset, limit int
@@ -213,19 +214,19 @@ func PostFeedGet(w http.ResponseWriter, r *http.Request) {
 	}
 	if err1 != nil || err2 != nil {
 		log.Println(err1, err2)
-		GenerateError(w, http.StatusBadRequest, requestID, "10m")
+		common.GenerateError(w, http.StatusBadRequest, requestID, "10m")
 		return
 	}
 	userID, err := CheckAuthorization(context.Background(), r)
 	if err != nil {
-		GenerateError(w, http.StatusUnauthorized, requestID, "10m")
+		common.GenerateError(w, http.StatusUnauthorized, requestID, "10m")
 		return
 	}
 
 	posts, err := storage.FeedPosts(context.Background(), userID, offset, limit)
 	if err != nil {
 		log.Println(err)
-		GenerateError(w, http.StatusInternalServerError, requestID, "10m")
+		common.GenerateError(w, http.StatusInternalServerError, requestID, "10m")
 		return
 	}
 	w.WriteHeader(http.StatusOK)

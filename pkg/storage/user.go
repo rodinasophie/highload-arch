@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"highload-arch/pkg/common"
 
 	"time"
 
@@ -97,7 +98,7 @@ func dbGetUserById(ctx context.Context, tx pgx.Tx, userID string) (*User, error)
 	}
 
 	if len(res) == 0 {
-		return nil, ErrUserNotFound
+		return nil, common.ErrUserNotFound
 	}
 
 	/*/err := pgxscan.Select(context.Background(), Db(), &res, `SELECT * FROM users WHERE id = $1`, userID)
@@ -134,7 +135,7 @@ func dbGetUsersByRegex(ctx context.Context, regexMap map[string]string) ([]User,
 	}
 
 	if len(res) == 0 {
-		return nil, ErrUserNotFound
+		return nil, common.ErrUserNotFound
 	}
 	return res, nil
 }
