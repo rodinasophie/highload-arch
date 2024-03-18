@@ -45,6 +45,19 @@ docker-dialogs-db:
 build-dialogs:
 	CGO_ENABLED=1 go build -tags=go_tarantool_ssl_disable -gcflags=" all=-N -l" -o bin/dialogs -mod vendor pkg/dialogs_service/main.go
 
+docker-counters-db:
+	docker compose up -d db-counters 
+	docker exec -it ha-db-counters sh -c "psql -U admin_user -f /etc/highload-arch/counters_schema.sql counters_social_net";
+
+build-counters:
+	CGO_ENABLED=1 go build -tags=go_tarantool_ssl_disable -gcflags=" all=-N -l" -o bin/counters -mod vendor pkg/counters_service/main.go
+
+docker-counters:
+	docker compose up --build -d counters && sleep 5;
+
+docker-run-counters:
+	docker exec -d highload-arch-counters sh -c "./bin/counters" && sleep 5;
+
 docker-dialogs:
 	docker compose up --build -d dialogs && sleep 5;
 

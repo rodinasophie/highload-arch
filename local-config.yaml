@@ -12,7 +12,7 @@ db:
 dialogs:
   db: "host=localhost port=5436 user=admin_user password=1111 dbname=dialogs_social_net sslmode=disable pool_max_conns=100"
   port: ":8087"
-  host: "localhost:8087"
+  host: "localhost:8083"
 
 cache:
   url: "redis://localhost:6379/0"
@@ -24,3 +24,8 @@ tarantool:
 
 rabbitmq:
   url: "amqp://user:pass@localhost:5672/"
+
+counters:
+  db: "host=localhost port=5442 user=admin_user password=1111 dbname=counters_social_net sslmode=disable pool_max_conns=100"
+  port: ":8091"
+  host: "localhost:8083"

@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS dialogs (
     recepient_id UUID NOT NULL,
     dialog_id VARCHAR(100) NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    text VARCHAR(400) NOT NULL,
+    text VARCHAR(1000) NOT NULL,
+    state VARCHAR(50) NOT NULL,
     PRIMARY KEY(id, dialog_id) 
 );

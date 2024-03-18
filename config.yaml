@@ -10,7 +10,7 @@ db:
   replica: "host=172.16.238.92 port=5432 user=admin_user password=1111 dbname=social_net sslmode=disable "
 
 dialogs:
-  db: "host=172.16.238.90 port=5436 user=admin_user password=1111 dbname=dialogs_social_net sslmode=disable pool_max_conns=100"
+  db: "host=172.16.238.90 port=5432 user=admin_user password=1111 dbname=dialogs_social_net sslmode=disable pool_max_conns=100"
   port: ":8086"
   host: "172.16.238.99:8086"
 
@@ -24,3 +24,8 @@ tarantool:
 
 rabbitmq:
   url: "amqp://user:pass@172.16.238.105:5672/"
+
+counters:
+  db: "host=172.16.238.107 port=5432 user=admin_user password=1111 dbname=counters_social_net sslmode=disable pool_max_conns=100"
+  port: ":8090"
+  host: "172.16.238.99:8086"

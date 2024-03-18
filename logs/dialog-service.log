@@ -6,3 +6,17 @@
 2024/01/07 23:21:52 Connecting to TT
 2024/01/07 23:21:52 Tarantool disabled
 2024/01/07 23:21:52 Server started
+2024/03/16 15:30:38 Can't read config file: While parsing config: yaml: unmarshal errors:
+  line 28: mapping key "dialogs" already defined at line 12
+2024/03/17 17:01:37 Connecting to Postgres
+2024/03/17 17:01:37 Connecting to TT
+2024/03/17 17:01:37 Tarantool disabled
+2024/03/17 17:01:37 Connecting to RabbitMQ
+2024/03/17 17:01:37 Running Saga Handler
+2024/03/17 17:01:37  [*] Waiting for messages. To exit press CTRL+C
+2024/03/17 17:02:09 Connecting to Postgres
+2024/03/17 17:02:09 Connecting to TT
+2024/03/17 17:02:09 Tarantool disabled
+2024/03/17 17:02:09 Connecting to RabbitMQ
+2024/03/17 17:02:09 Running Saga Handler
+2024/03/17 17:02:09  [*] Waiting for messages. To exit press CTRL+C
