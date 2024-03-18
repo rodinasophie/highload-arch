@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/redis/go-redis/v9"
+	"github.com/tarantool/go-tarantool/v2"
 )
 
 const (
@@ -83,6 +84,7 @@ func CloseRabbitMQ() {
 func CloseTarantoolConnection() {
 	if tt != nil {
 		tt.Close()
+	}
 }
 
 func HandleInTransaction(ctx context.Context, callback Callback) (interface{}, error) {

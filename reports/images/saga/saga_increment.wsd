@@ -1,0 +1,14 @@
+@startuml
+
+rectangle "Dialogs Service" as dialogs
+rectangle "Counters Service" as counters
+
+queue "unreadMessages" as unreadMessages
+queue "unreadMessagesCounted" as unreadMessagesCounted
+
+
+dialogs ->unreadMessages: msg_id.state=PENDING_UNREAD, increment count
+unreadMessages -right-> counters: ++count in counters db
+
+counters --> unreadMessagesCounted: ack(msg_id is counted)
+unreadMessagesCounted-->dialogs: msg_id.state = UNREAD

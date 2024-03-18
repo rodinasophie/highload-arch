@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"highload-arch/pkg/config"
-	"highload-arch/pkg/dialogs_service/routes"
-	"highload-arch/pkg/dialogs_service/storage"
+	"highload-arch/pkg/counters_service/routes"
+	"highload-arch/pkg/counters_service/storage"
 	"log"
 	"os"
 
@@ -22,25 +22,22 @@ func setLoggerFile(filename string) *os.File {
 }
 
 func main() {
-	/*f := setLoggerFile("./logs/dialog-service.log")
+	/*f := setLoggerFile("./logs/counters-service.log")
 	defer f.Close()*/
 	config.Load("local-config.yaml")
+
 	log.Printf("Connecting to Postgres")
 	storage.CreateConnectionPool()
-
-	log.Printf("Connecting to TT")
-	storage.ConnectToTarantool()
-	defer storage.CloseTarantoolConnection()
 
 	log.Printf("Connecting to RabbitMQ")
 	storage.ConnectToRabbitMQ()
 	defer storage.CloseRabbitMQ()
 
 	log.Printf("Running Saga Handler")
-	go storage.SagaHandleMessageCountUpdated(context.Background(), storage.MessagedUpdated)
+	go storage.SagaHandleUpdateMessageCount(context.Background(), storage.UpdateMessageCount, storage.ReplyToDialogService)
 
 	log.Printf("Server started")
 	router := routes.NewRouter()
 
-	log.Fatal(http.ListenAndServe(config.GetString("dialogs.port"), router))
+	log.Fatal(http.ListenAndServe(config.GetString("counters.port"), router))
 }

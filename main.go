@@ -21,20 +21,20 @@ func setLoggerFile(filename string) *os.File {
 
 func main() {
 
-	f := setLoggerFile("./logs/service.log")
-	defer f.Close()
+	/*f := setLoggerFile("./logs/service.log")
+	defer f.Close()*/
 
 	config.Load("local-config.yaml")
 	log.Println("Connecting to Postgres")
 
-  storage.CreateConnectionPool()
+	storage.CreateConnectionPool()
 	storage.CreateReplicaConnectionPool()
 	log.Println("Connecting to Cache")
 	storage.ConnectToCache()
 
-  log.Printf("Connecting to TT")
-	storage.ConnectToTarantool()
-	defer storage.CloseTarantoolConnection()
+	//log.Printf("Connecting to TT")
+	//storage.ConnectToTarantool()
+	//defer storage.CloseTarantoolConnection()
 
 	log.Printf("Connecting to RabbitMQ")
 	storage.ConnectToRabbitMQ()

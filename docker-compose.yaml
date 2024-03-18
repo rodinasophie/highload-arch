@@ -1,5 +1,24 @@
 version: "3"
 services:
+  db-counters:
+    image: postgres:14
+    container_name: ha-db-counters
+    environment:
+      - POSTGRES_USER=admin_user
+      - POSTGRES_PASSWORD=1111
+      - POSTGRES_DB=counters_social_net
+      - PGPASSFILE=/root/.pgpass
+      - PGDATA=${PGDATA_LOCAL}
+    volumes:
+      - "./db-data-leader/pgpass:/root/.pgpass"
+      - "./db/counters_schema.sql:/etc/highload-arch/counters_schema.sql"
+    ports:
+      - 5442:5432
+    restart: always
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.107
+
   db-dialogs:
     image: postgres:14
     container_name: ha-db-dialogs
@@ -117,8 +136,7 @@ services:
     container_name: highload-arch-dialogs
     command: bash -c 'while true; do sleep 1; done'
     volumes:
-      - ./dialog-service.log:/highload-arch/dialog-service.log
-
+      - ./logs/dialog-service.log:/highload-arch/dialog-service.log
     ports:
       - "8086:8086"
     networks:
@@ -215,6 +233,21 @@ services:
         ipv4_address: 172.16.238.105
     depends_on:
       - elasticsearch
+
+  counters:
+    build:
+      context: ./
+      dockerfile: Dockerfile-counters
+    container_name: highload-arch-counters
+    command: bash -c 'while true; do sleep 1; done'
+    volumes:
+      - ./counters-service.log:/highload-arch/counters-service.log
+    ports:
+      - "8090:8090"
+    networks:
+      ctl_net:
+        ipv4_address: 172.16.238.109
+
 
 networks:
   ctl_net:
