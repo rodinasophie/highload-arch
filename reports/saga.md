@@ -7,9 +7,11 @@
 
 ## Разворачивание
 Backend:
-```make docker-reset && make docker-init && make docker-backend && make docker-run-backend```
+`make docker-reset && make docker-init && make docker-backend && make docker-run-backend`
+
 Dialogs:
 `make docker-dialogs-db && make docker-dialogs && make docker-run-dialogs`
+
 Counters:
 `make docker-counters-db && make docker-counters && make docker-run-counters`
 
