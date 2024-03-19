@@ -123,9 +123,16 @@ func CreatePost(ctx context.Context, userID string, text string) error {
 	if err != nil {
 		return err
 	}
-	err = QueuePostCreatedMessage(ctx, req)
+	is_celebrity, err := IsCelebrity(ctx, userID)
 	if err != nil {
 		return err
+	}
+
+	if is_celebrity {
+		err = QueuePostCreatedMessage(ctx, req)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -296,6 +303,7 @@ func cacheGetPosts(ctx context.Context, friends []string, offset, limit int) ([]
 
 func cacheUpdatePosts(ctx context.Context) {
 	posts, err := dbLoadPosts(ctx, 1000)
+
 	if err != nil {
 		log.Println("Load posts failed: ", err)
 	}
@@ -323,6 +331,31 @@ func cacheUpdatePosts(ctx context.Context) {
 				}
 			}
 		}
+	}
+}
+
+func updateFriendsByUser(ctx context.Context, userID string) {
+	friends, err := GetFriendsByUser(ctx, userID)
+	if err == nil {
+		for _, friend := range friends {
+			friendSettings := map[string]string{"user_id": friend.ID, "friend_id": friend.FriendID}
+			for k, v := range friendSettings {
+				err := cache.HSet(ctx, "user_friends:"+friend.ID, k, v).Err()
+				if err != nil {
+					log.Println("Cache update failed: ", err)
+					return
+				}
+			}
+		}
+	}
+}
+
+func CacheUpdatePostsForUser(ctx context.Context, userID string, postID string, postText string) {
+	updateFriendsByUser(ctx, userID)
+	postSettings := map[string]string{"post_id": postID, "author_user_id": userID, "text": postText}
+
+	for k, v := range postSettings {
+		cache.HSet(ctx, "post:"+postID, k, v).Err()
 	}
 }
 

@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
     second_name VARCHAR(50) NOT NULL,
     birthdate DATE NOT NULL,
     city VARCHAR(50) NOT NULL,
-    biography VARCHAR(255)
+    biography VARCHAR(255),
+    is_celebrity BOOLEAN DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_credentials (

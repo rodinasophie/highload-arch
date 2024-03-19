@@ -1,0 +1,58 @@
+@startuml
+title "POST /user/{user_id}/select"
+
+skinparam database  {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam agent {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam collections {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+skinparam actor {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam queue {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+actor Client as client1
+
+rectangle "Dating Auth Server" {
+    agent "Auth Server" as auth_server
+}
+
+rectangle "Dating Service Core" {
+    agent "Core Backend" as backend_core
+    queue "Waiting match" as waiting_match
+    database "Core Database" as db_core
+    queue "Notify match" as notify_match
+}
+collections "Dating Cache" as cache
+
+rectangle "Dating Service Dialogs" {
+    agent "Dialogs Backend" as backend_dialogs
+    database "Dialogs Database" as db_dialogs
+}
+
+client1 -down->backend_core: "selectUser with {user_id}"
+backend_core <-> auth_server: "checkToken"
+backend_core -down-> waiting_match: "Add to waiting match"
+backend_core -right-> cache: "Get waiting match"
+backend_core -down-> db_core: "Add waiting match"
+
+db_core <-> cache: "Sync waiting match"
+backend_core -> notify_match: "If match, notify match"
+notify_match ->client1: "Notify match"
+
+backend_core -up-> backend_dialogs: "If match, send message"
+backend_dialogs -> db_dialogs: "Add dialog"

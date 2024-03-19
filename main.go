@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"highload-arch/pkg/backend"
+	"highload-arch/pkg/backend/endpoints"
 	"highload-arch/pkg/config"
 	"highload-arch/pkg/storage"
 	"log"
@@ -39,7 +41,7 @@ func main() {
 	log.Printf("Connecting to RabbitMQ")
 	storage.ConnectToRabbitMQ()
 	defer storage.CloseRabbitMQ()
-
+	go endpoints.ReadPostCreatedMessageFromQueueUpdateCache(context.Background(), storage.CacheUpdatePostsForUser)
 	log.Printf("Server started")
 	router := backend.NewRouter()
 

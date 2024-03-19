@@ -1,0 +1,60 @@
+@startuml
+title "POST /user/{user_id}/remove"
+
+skinparam database  {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam agent {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam collections {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+skinparam actor {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam queue {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+actor Client as client1
+
+rectangle "Dating Auth Server" {
+    agent "Auth Server" as auth_server
+}
+
+rectangle "Dating Service Core" {
+    agent "Core Backend" as backend_core
+    database "Core Database" as db_core
+}
+collections "Dating Cache" as cache
+
+rectangle "Dating Service Dialogs" {
+    agent "Dialogs Backend" as backend_dialogs
+    database "Dialogs Database" as db_dialogs
+}
+
+queue "removedMatch" as removedMatch
+queue "removedDialog" as removedDialog
+
+client1 -down->backend_core: "removeUser with {user_id}"
+backend_core <-left-> auth_server: "checkToken"
+
+backend_core --> cache: "Remove match"
+backend_core --> db_core: "Remove match"
+
+db_core <-> cache: "Sync match"
+
+backend_core -> removedMatch: "Match removed, pending dialog removal"
+removedMatch -> backend_dialogs: "Get removed match"
+backend_dialogs -> removedDialog: "Dialog removed"
+removedDialog -> backend_core: "Match removed"
+backend_dialogs -->db_dialogs: "Remove dialog"

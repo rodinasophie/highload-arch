@@ -1,0 +1,40 @@
+@startuml
+title "/dialog/{user_id}/list"
+skinparam database  {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam agent {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam collections {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+skinparam actor {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam queue {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+actor Client as client1
+
+
+rectangle "Dating Auth Server" {
+    agent "Auth Server" as auth_server
+}
+
+rectangle "Dating Service Dialogs" {
+    agent "Dialogs Backend" as backend_dialogs
+    database "Dialogs Database" as db_dialogs
+}
+
+client1 -down-> backend_dialogs: "listMessages"
+backend_dialogs <-> auth_server: "checkToken"
+backend_dialogs -down->db_dialogs: "getMessages"

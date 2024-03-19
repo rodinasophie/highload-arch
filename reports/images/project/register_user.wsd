@@ -1,0 +1,44 @@
+@startuml
+title "POST /user/register"
+
+skinparam database  {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam agent {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam collections {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+skinparam actor {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam queue {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+actor Client as client1
+collections "Dating Cache" as cache
+
+rectangle "Dating Auth Server" {
+    agent "Auth Server" as auth_server
+}
+
+rectangle "Dating Service Core" {
+    agent "Core Backend" as backend_core
+    database "Core Database" as db_core
+}
+
+client1 -down->backend_core: "registerUser"
+backend_core <-> auth_server: "checkToken"
+backend_core -down-> db_core: "Add user to db"
+backend_core -down->cache: "Add user"
+cache <->db_core: "Sync users"

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"log"
 
 	"github.com/georgysavva/scany/pgxscan"
 	"github.com/jackc/pgx/v4"
@@ -71,6 +72,16 @@ func AddFriend(ctx context.Context, userID string, friendID string) error {
 		}
 		return nil, nil
 	})
+	if err != nil {
+		log.Println("Cannot add friend")
+	}
+	friends, err := GetFriendsByUser(ctx, userID)
+	if err != nil {
+		log.Panicln("Cannot get friends")
+	}
+	if len(friends) > CELEBRITY_THRESHOLD {
+		SetCelebrity(ctx, userID)
+	}
 	return err
 }
 

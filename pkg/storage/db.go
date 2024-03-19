@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	DbUsersFirstName  = "first_name"
-	DbUsersSecondName = "second_name"
+	DbUsersFirstName    = "first_name"
+	DbUsersSecondName   = "second_name"
+	CELEBRITY_THRESHOLD = 1000000
 )
 
 var db *pgxpool.Pool

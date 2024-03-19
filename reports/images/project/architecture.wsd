@@ -1,0 +1,89 @@
+@startuml
+title "Dating Service"
+skinparam database  {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam agent {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam collections {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+skinparam actor {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam queue {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+actor Client as client1
+
+
+rectangle "Dating Auth Server" {
+    agent "Auth Server" as auth_server
+}
+
+rectangle "Dating Service Dialogs" {
+    collections "Dialogs Backend" as backend_dialogs
+    rectangle "Dialogs DB" {
+        database "Dialogs Database" as db_dialogs1
+        database "Dialogs Database" as db_dialogs2
+        database "Dialogs Database" as db_dialogs3
+    }
+
+}
+
+rectangle "Dating Service Core" {
+    collections "Core Backend" as backend_core
+    collections "Candidate Backend" as candidate_backend
+    queue "Waiting match" as waiting_match
+    queue "Notify match" as notify_match
+    rectangle "Core DB" {
+        database "Core Database" as db_core1
+        database "Core Database" as db_core2
+        database "Core Database" as db_core3
+
+    }
+    collections "Dating Cache" as cache
+
+}
+
+collections "Load balancers" as load_balancers
+
+client1 -->load_balancers
+
+load_balancers ---> backend_core
+load_balancers ---> backend_dialogs
+load_balancers ---> candidate_backend
+
+backend_dialogs -down-> db_dialogs1
+backend_dialogs -down-> db_dialogs2
+backend_dialogs -down-> db_dialogs3
+
+backend_core -up-> db_core1
+backend_core -up-> db_core3
+backend_core -up-> db_core2
+
+candidate_backend-->db_core1
+candidate_backend-->db_core2
+candidate_backend-->db_core3
+
+backend_dialogs<-down->auth_server: ""checkToken""
+backend_core<-->auth_server: "checkToken"
+candidate_backend<-->auth_server: "checkToken"
+
+backend_core -> waiting_match: "Select user"
+waiting_match <- candidate_backend: "Suggest user"
+
+backend_core -up-> notify_match: "Match happened"
+notify_match -down-> client1: "Notify match"
+backend_core ->backend_dialogs: "Match happened"
+backend_core -up->cache: "Get matches/users"
+candidate_backend -up->cache: "Get matches/users"

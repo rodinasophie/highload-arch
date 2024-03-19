@@ -1,0 +1,47 @@
+@startuml
+title "GET /user/candidate"
+
+skinparam database  {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam agent {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam collections {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+skinparam actor {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+skinparam queue {
+    BorderColor Red
+    BackgroundColor LightYellow
+}
+
+actor Client as client1
+
+rectangle "Dating Auth Server" {
+    agent "Auth Server" as auth_server
+}
+collections "Dating Cache" as cache
+
+rectangle "Dating Service Core" {
+    'agent "Core Backend" as backend_core
+    agent "Candidate Backend" as candidate_backend
+    database "Core Database" as db_core
+    queue "Waiting match" as waiting_match
+}
+
+client1 -down->candidate_backend: "getCandidate"
+candidate_backend <-> auth_server: "checkToken"
+candidate_backend -down-> db_core: "Get users"
+candidate_backend -left->waiting_match: "Get candidates"
+candidate_backend -down->cache: "Get users"
+cache <->db_core: "Sync users"

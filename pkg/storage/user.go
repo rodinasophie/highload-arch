@@ -13,12 +13,36 @@ import (
 )
 
 type User struct {
-	ID         string    `pg:"id"`
-	FirstName  string    `pg:"first_name"`
-	SecondName string    `pg:"second_name"`
-	Birthdate  time.Time `pg:"birthdate"`
-	Biography  string    `pg:"biography"`
-	City       string    `pg:"city"`
+	ID          string    `pg:"id"`
+	FirstName   string    `pg:"first_name"`
+	SecondName  string    `pg:"second_name"`
+	Birthdate   time.Time `pg:"birthdate"`
+	Biography   string    `pg:"biography"`
+	City        string    `pg:"city"`
+	IsCelebrity bool      `pg:"is_celebrity"`
+}
+
+func dbSetCelebrityForUser(ctx context.Context, tx pgx.Tx, userID string) error {
+	_, err := tx.Exec(ctx,
+		`UPDATE users SET is_celebrity = 1 where id = $1`, userID)
+
+	return err
+}
+
+func SetCelebrity(ctx context.Context, userID string) error {
+	_, err := HandleInTransaction(ctx, func(ctx context.Context, tx pgx.Tx) (interface{}, error) {
+		err := dbSetCelebrityForUser(ctx, tx, userID)
+		return nil, err
+	})
+	return err
+}
+
+func IsCelebrity(ctx context.Context, userID string) (bool, error) {
+	user, err := GetUser(ctx, userID)
+	if err != nil {
+		return false, err
+	}
+	return user.IsCelebrity, nil
 }
 
 func AddUser(ctx context.Context, user *User, password string) (string, error) {
